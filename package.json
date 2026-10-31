@@ -1,0 +1,28 @@
+{
+  "name": "@noventia/core-api",
+  "version": "1.0.0",
+  "description": "Types and client of the Noventia core API, version 1: passport, wallet check, token check, found in your wallets. Facts with proofs, no single score.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "LICENSE",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  }
+}
