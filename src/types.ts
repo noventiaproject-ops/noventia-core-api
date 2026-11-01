@@ -391,7 +391,18 @@ export type ApiErrorCode =
   /** 1.2.1 (403): the request came from a browser page whose origin is not allowed. Nothing was done. */
   | 'origin_not_allowed'
   /** 1.2.0, the relay (502): the call was forwarded and the RPC did not answer. A sent transaction may still have reached the network: check its signature status, never send it again. */
-  | 'upstream_failed';
+  | 'upstream_failed'
+  /** 1.4.0, Noventia for Projects: see ProjectsErrorCode in projects.ts. */
+  | 'not_a_member'
+  | 'not_authority'
+  | 'no_authority'
+  | 'challenge_expired'
+  | 'invalid_signature'
+  | 'session_expired'
+  | 'forbidden_role'
+  | 'list_too_large'
+  | 'quota_exceeded'
+  | 'list_not_ready';
 
 // ─── the cleanup RPC relay (1.2.0) ──────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 {
   "name": "@noventia/core-api",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Types and client of the Noventia core API, version 1: passport, wallet check, token check, found in your wallets. Facts with proofs, no single score.",
   "license": "MIT",
   "private": true,

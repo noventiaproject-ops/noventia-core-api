@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.3.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.4.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.4.0:** Noventia for Projects (`projects.ts`, every type under `/v1/projects` and the passport's `labels` and `appeals` calls): sign in with the authority wallet (Sign In With Solana) or a Firebase Auth email link, the team, list checks with labels that carry proofs (`ListLabel`, `ClusterView`, the exclusions file), appeals, the live report after a distribution (`LiveReportResponse`), the public page and badge; the error codes `not_a_member`, `not_authority`, `no_authority`, `challenge_expired`, `invalid_signature`, `session_expired`, `forbidden_role`, `list_too_large`, `quota_exceeded`, `list_not_ready`. The engine's mock answers every call from a demo project.
 * **1.3.0:** `coverage.limitedBy` can be `"daily_cap"`: the day's credits for this wallet are spent, the answer holds what was read so far (`readFrom` says since when), and the rest is read on the following days until the history is complete. With no facts yet, show "Still reading your history, more tomorrow"; with facts, "since at least <readFrom>".
 * **1.2.1:** the error code `origin_not_allowed`: a request with a foreign `Origin` is refused before anything is done.
 * **1.2.0:** `rpc()`, the cleanup RPC relay: `RPC_METHODS`, `RpcRequest`, `RpcResponse`, and the codes `method_not_allowed`, `invalid_rpc`, `upstream_failed`.
