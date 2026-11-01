@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.2.1"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.3.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.3.0:** `coverage.limitedBy` can be `"daily_cap"`: the day's credits for this wallet are spent, the answer holds what was read so far (`readFrom` says since when), and the rest is read on the following days until the history is complete. With no facts yet, show "Still reading your history, more tomorrow"; with facts, "since at least <readFrom>".
 * **1.2.1:** the error code `origin_not_allowed`: a request with a foreign `Origin` is refused before anything is done.
 * **1.2.0:** `rpc()`, the cleanup RPC relay: `RPC_METHODS`, `RpcRequest`, `RpcResponse`, and the codes `method_not_allowed`, `invalid_rpc`, `upstream_failed`.
 * **1.1.0:** the error code `busy_today`; `meta.cache` can be `"stale"`; the wallet check has optional `notices`, today one kind, `solana.lookalikeDust` (dust from addresses that look like the wallet's counterparties). Retry-After is the real wait on 429.
