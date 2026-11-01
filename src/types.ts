@@ -46,8 +46,12 @@ export interface ResponseMeta {
   readonly rulesVersion: string;
   readonly thresholdsVersion: number;
   readonly branchConfigVersion: number;
-  /** `hit`: from cache. `topped_up`: cache plus the transactions since. `cold`: read from the source now. */
-  readonly cache: 'hit' | 'topped_up' | 'cold';
+  /**
+   * `hit`: from cache. `topped_up`: cache plus the transactions since. `cold`: read from the source now.
+   * `stale` (1.1.0): from the last read, because today's reading budget or cold read cap was reached;
+   * newer transactions may be missing. Show it as "Answered from the last read".
+   */
+  readonly cache: 'hit' | 'topped_up' | 'cold' | 'stale';
   /** True for example data: show it as "Example wallet, illustrative data". */
   readonly example: boolean;
   /** Always true: no answer is for search engines (the check page sets noindex from it; the header says the same). */
@@ -209,6 +213,13 @@ export interface WalletCheckResponse {
   /** Set when the wallet's swaps look automated; shown as "Looks automated" and nothing else. */
   readonly automation: AutomationFlag | null;
   readonly warnings: readonly Warning[];
+  /**
+   * Notices for the wallet's owner, not warnings about the wallet (1.1.0). Today one kind:
+   * `solana.lookalikeDust`, value `{ count, pairs: [{ sender, imitates }] }` (at most 5 pairs), proofs
+   * the dust transactions (at most 10, newest first). Shown with: "Look-alike addresses sent dust to
+   * this wallet. Always copy addresses from the source, never from history."
+   */
+  readonly notices?: readonly FactView[];
 }
 
 /** An empty token account the owner can close for its rent. */
@@ -352,7 +363,13 @@ export interface TokenCheckResponse {
   readonly warnings: readonly Warning[];
 }
 
-export type ApiErrorCode = 'invalid_address' | 'not_a_wallet' | 'too_many_wallets' | 'not_found' | 'rate_limited' | 'unauthorized' | 'source_unavailable';
+/**
+ * `rate_limited` (429): too many calls or new wallets from this client; Retry-After gives the seconds
+ * until the window frees. `busy_today` (503, 1.1.0): today's reading budget or cap on new wallets is
+ * used up; Retry-After gives the seconds until 00:00 UTC; wallets read before still answer.
+ * `source_unavailable` (502 or 503): the chain read failed or the service is restarting; no Retry-After.
+ */
+export type ApiErrorCode = 'invalid_address' | 'not_a_wallet' | 'too_many_wallets' | 'not_found' | 'rate_limited' | 'unauthorized' | 'source_unavailable' | 'busy_today';
 
 export interface ApiError {
   readonly error: { readonly code: ApiErrorCode; readonly message: string };

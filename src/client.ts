@@ -27,7 +27,7 @@ export class CoreApiError extends Error {
     readonly status: number,
     readonly code: ApiErrorCode | 'network',
     message: string,
-    /** Seconds to wait before trying again, from a 429. */
+    /** Seconds to wait before trying again, from a 429 or a 503 busy_today (Retry-After). */
     readonly retryAfter: number | null = null,
   ) {
     super(message);

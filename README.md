@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.0.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.1.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -35,7 +35,11 @@ const wallet = await core.checkWallet(address);
 
 The passport calls need the app's key. Only the app's backend holds it: never ship it in an app bundle or a web page.
 
-Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`. `code` is the API's code (`invalid_address`, `not_a_wallet`, `too_many_wallets`, `unauthorized`, `not_found`, `rate_limited`, `source_unavailable`), or `network` when no answer came.
+Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`. `code` is the API's code (`invalid_address`, `not_a_wallet`, `too_many_wallets`, `unauthorized`, `not_found`, `rate_limited`, `busy_today`, `source_unavailable`), or `network` when no answer came.
+
+* `rate_limited` (429): too many calls or new wallets from this client. `retryAfter` is the wait in seconds.
+* `busy_today` (503): today's reading budget or cap on new wallets is used up. `retryAfter` is the wait until 00:00 UTC. A wallet read before still answers, with `meta.cache: "stale"`.
+* `source_unavailable` (502 or 503): the chain read failed or the service is restarting. No `retryAfter`.
 
 ## Rules every answer keeps
 
@@ -48,3 +52,6 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 ## Versions
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
+
+* **1.1.0:** the error code `busy_today`; `meta.cache` can be `"stale"`; the wallet check has optional `notices`, today one kind, `solana.lookalikeDust` (dust from addresses that look like the wallet's counterparties). Retry-After is the real wait on 429.
+* **1.0.0:** the first version.
