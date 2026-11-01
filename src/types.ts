@@ -381,6 +381,8 @@ export type ApiErrorCode =
   /** 1.2.0, the relay: the method is not on the allowlist (403); the call has the wrong shape or the transaction is not fully signed (400). Nothing was forwarded. */
   | 'method_not_allowed'
   | 'invalid_rpc'
+  /** 1.2.1 (403): the request came from a browser page whose origin is not allowed. Nothing was done. */
+  | 'origin_not_allowed'
   /** 1.2.0, the relay (502): the call was forwarded and the RPC did not answer. A sent transaction may still have reached the network: check its signature status, never send it again. */
   | 'upstream_failed';
 

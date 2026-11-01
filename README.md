@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.2.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.2.1"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -36,13 +36,14 @@ const wallet = await core.checkWallet(address);
 
 The passport calls need the app's key. Only the app's backend holds it: never ship it in an app bundle or a web page.
 
-Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`. `code` is the API's code (`invalid_address`, `not_a_wallet`, `too_many_wallets`, `unauthorized`, `not_found`, `rate_limited`, `busy_today`, `source_unavailable`, `method_not_allowed`, `invalid_rpc`, `upstream_failed`), or `network` when no answer came.
+Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`. `code` is the API's code (`invalid_address`, `not_a_wallet`, `too_many_wallets`, `unauthorized`, `not_found`, `rate_limited`, `busy_today`, `source_unavailable`, `method_not_allowed`, `invalid_rpc`, `upstream_failed`, `origin_not_allowed`), or `network` when no answer came.
 
 * `rate_limited` (429): too many calls or new wallets from this client. `retryAfter` is the wait in seconds.
 * `busy_today` (503): today's reading budget or cap on new wallets is used up. `retryAfter` is the wait until 00:00 UTC. A wallet read before still answers, with `meta.cache: "stale"`.
 * `source_unavailable` (502 or 503): the chain read failed or the service is restarting. No `retryAfter`.
 * `method_not_allowed` (403) and `invalid_rpc` (400), the relay: the method is off the allowlist, or the call has the wrong shape, or the transaction is not fully signed. Nothing was forwarded.
 * `upstream_failed` (502), the relay: the call was forwarded and the RPC did not answer. A sent transaction may still have reached the network: check its signature status, never send it again.
+* `origin_not_allowed` (403): the request came from a browser page whose origin is not allowed. Nothing was done.
 
 ## Rules every answer keeps
 
@@ -56,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.2.1:** the error code `origin_not_allowed`: a request with a foreign `Origin` is refused before anything is done.
 * **1.2.0:** `rpc()`, the cleanup RPC relay: `RPC_METHODS`, `RpcRequest`, `RpcResponse`, and the codes `method_not_allowed`, `invalid_rpc`, `upstream_failed`.
 * **1.1.0:** the error code `busy_today`; `meta.cache` can be `"stale"`; the wallet check has optional `notices`, today one kind, `solana.lookalikeDust` (dust from addresses that look like the wallet's counterparties). Retry-After is the real wait on 429.
 * **1.0.0:** the first version.
