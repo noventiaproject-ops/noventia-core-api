@@ -369,7 +369,49 @@ export interface TokenCheckResponse {
  * used up; Retry-After gives the seconds until 00:00 UTC; wallets read before still answer.
  * `source_unavailable` (502 or 503): the chain read failed or the service is restarting; no Retry-After.
  */
-export type ApiErrorCode = 'invalid_address' | 'not_a_wallet' | 'too_many_wallets' | 'not_found' | 'rate_limited' | 'unauthorized' | 'source_unavailable' | 'busy_today';
+export type ApiErrorCode =
+  | 'invalid_address'
+  | 'not_a_wallet'
+  | 'too_many_wallets'
+  | 'not_found'
+  | 'rate_limited'
+  | 'unauthorized'
+  | 'source_unavailable'
+  | 'busy_today'
+  /** 1.2.0, the relay: the method is not on the allowlist (403); the call has the wrong shape or the transaction is not fully signed (400). Nothing was forwarded. */
+  | 'method_not_allowed'
+  | 'invalid_rpc'
+  /** 1.2.0, the relay (502): the call was forwarded and the RPC did not answer. A sent transaction may still have reached the network: check its signature status, never send it again. */
+  | 'upstream_failed';
+
+// ─── the cleanup RPC relay (1.2.0) ──────────────────────────────────────────
+
+/**
+ * The chain RPC methods the relay forwards, the ones the wallet cleanup needs. Account reads, the
+ * latest blockhash, simulation, sending a transaction that is already signed, signature status.
+ * Everything else is refused with method_not_allowed.
+ */
+export const RPC_METHODS = ['getGenesisHash', 'getTokenAccountsByOwner', 'getLatestBlockhash', 'simulateTransaction', 'sendTransaction', 'getSignatureStatuses', 'getMultipleAccounts', 'getAccountInfo'] as const;
+export type RpcMethod = (typeof RPC_METHODS)[number];
+
+/** One JSON-RPC 2.0 call. No batches. */
+export interface RpcRequest {
+  readonly jsonrpc: '2.0';
+  readonly id: string | number;
+  readonly method: RpcMethod;
+  readonly params?: readonly unknown[];
+}
+
+/**
+ * The RPC's own answer, unchanged: `result`, or `error` when the node refused the call. Both come
+ * with HTTP 200. The relay's own refusals and failures come as ApiError with the codes above.
+ */
+export interface RpcResponse {
+  readonly jsonrpc: '2.0';
+  readonly id: string | number | null;
+  readonly result?: unknown;
+  readonly error?: { readonly code: number; readonly message: string; readonly data?: unknown };
+}
 
 export interface ApiError {
   readonly error: { readonly code: ApiErrorCode; readonly message: string };

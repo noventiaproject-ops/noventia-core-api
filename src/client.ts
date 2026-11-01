@@ -9,7 +9,7 @@
  * app bundle or a web page.
  */
 
-import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, PassportRequest, PassportResponse, TokenCheckResponse, WalletCheckResponse } from './types.js';
+import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, PassportRequest, PassportResponse, RpcRequest, RpcResponse, TokenCheckResponse, WalletCheckResponse } from './types.js';
 
 export type CoreClientOptions = {
   /** Without a trailing slash, for example the mock server http://127.0.0.1:8788. */
@@ -76,6 +76,13 @@ export function createCoreClient(options: CoreClientOptions) {
     /** "Found in your wallets": reclaimable rent and where each measured airdrop stands. Needs the app's key. */
     found: (request: FoundRequest) => call<FoundResponse>('POST', '/v1/passport/found', request, true),
     health: () => call<HealthResponse>('GET', '/v1/health'),
+    /**
+     * The cleanup RPC relay (1.2.0): one allowlisted JSON-RPC call, forwarded with the server's key.
+     * The answer is the RPC's own, `result` or `error`. A sendTransaction must be fully signed; the
+     * relay never signs. On `upstream_failed` the transaction may have gone through: check its
+     * signature status instead of sending it again.
+     */
+    rpc: (request: RpcRequest) => call<RpcResponse>('POST', '/v1/rpc', request),
   };
 }
 
