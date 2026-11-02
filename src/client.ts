@@ -9,7 +9,7 @@
  * app bundle or a web page.
  */
 
-import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, PassportRequest, PassportResponse, RpcRequest, RpcResponse, TokenCheckResponse, WalletCheckResponse } from './types.js';
+import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, PassportRequest, PassportResponse, RpcRequest, RpcResponse, TokenCheckResponse, WalletCheckResponse, YourAirdropsRequest, YourAirdropsResponse } from './types.js';
 
 export type CoreClientOptions = {
   /** Without a trailing slash, for example the mock server http://127.0.0.1:8788. */
@@ -80,6 +80,8 @@ export function createCoreClient(options: CoreClientOptions) {
     passport: (request: PassportRequest) => call<PassportResponse>('POST', '/v1/passport', request, true),
     /** "Found in your wallets": reclaimable rent and where each measured airdrop stands. Needs the app's key. */
     found: (request: FoundRequest) => call<FoundResponse>('POST', '/v1/passport/found', request, true),
+    /** "Your airdrops" (1.5.0): for each measured programme, what the wallet claimed, did and what it was worth. Needs the app's key. */
+    airdrops: (request: YourAirdropsRequest) => call<YourAirdropsResponse>('POST', '/v1/passport/airdrops', request, true),
     health: () => call<HealthResponse>('GET', '/v1/health'),
     /**
      * The cleanup RPC relay (1.2.0): one allowlisted JSON-RPC call, forwarded with the server's key.

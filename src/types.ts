@@ -438,4 +438,179 @@ export interface ApiError {
   readonly error: { readonly code: ApiErrorCode; readonly message: string };
 }
 
-export type ApiResponse = PassportResponse | WalletCheckResponse | TokenCheckResponse | FoundResponse;
+/**
+ * POST /v1/passport/airdrops (1.5.0): "Your airdrops" for wallets their owner linked. For each of the
+ * measured programmes: whether the wallet claimed, what it received, when, what it did after (held,
+ * sold within 24 hours or 7 days, moved to another wallet, deposited into a program), measured with
+ * the same rules as the published reports, every fact with its transactions; what the tokens were
+ * worth when sold or moved and what they would be worth today if held, with the price source and
+ * its time; and an open claim window the wallet has not claimed from. Needs the app's key.
+ * No EP and no level anywhere in it.
+ */
+export interface YourAirdropsRequest {
+  /** 1 to 10 addresses. */
+  readonly wallets: readonly string[];
+}
+
+/** The programme's claim window from its config; `open` when the end is still ahead. */
+export interface AirdropWindowView {
+  readonly start: string | null;
+  readonly end: string | null;
+  readonly open: boolean;
+}
+
+/** A USD value with the price it was made from: the price's source and time, never a guess. */
+export interface AirdropMoneyView {
+  /** USD with two decimals, for example "12.50". */
+  readonly usd: string;
+  /** The token's USD price used, as the source gave it. */
+  readonly priceUsd: string;
+  /** ISO 8601 of the price point. */
+  readonly priceAt: string;
+  readonly source: 'defillama';
+}
+
+/**
+ * What the tokens were worth. A field is null when there is no reliable price for that moment
+ * (`note` says so), never an estimate.
+ */
+export interface AirdropValueView {
+  /** What was received, at the price of the first claim. */
+  readonly received: AirdropMoneyView | null;
+  /** What was sold or moved to another wallet within 7 days of the first claim, each at the price of its own day. */
+  readonly soldOrMoved: AirdropMoneyView | null;
+  /** What was received, at today's price: what it would be worth if every token had been kept. */
+  readonly ifHeldToday: AirdropMoneyView | null;
+  /** Why a value is missing, for example "no price". */
+  readonly note: string | null;
+}
+
+/** A fixed stamp per programme, chosen as the airdrop record chooses it. */
+export type AirdropStamp = 'Held 90 days' | 'Held 30 days' | 'Sold on day one' | 'Moved out on day one' | 'Not held at 30 days' | 'Not claimed';
+
+export type AirdropHeldView = 'held' | 'held_with_deposits' | 'not_held' | 'unknown' | 'not_reached';
+
+/** One thing the wallet did with the tokens, with the transactions that show it. */
+export interface AirdropMoveView {
+  readonly happened: boolean;
+  /** False when the history or the clock does not reach the end of the window. */
+  readonly known: boolean;
+  readonly raw: string;
+  readonly amount: string;
+  readonly proofs: readonly Proof[];
+}
+
+export interface AirdropCheckpointView {
+  readonly status: AirdropHeldView;
+  readonly balanceRaw: string | null;
+  readonly withDepositsRaw: string | null;
+  readonly proofs: readonly Proof[];
+}
+
+/** What the wallet did after the claim, by the published method (thresholds in `meta`). */
+export interface AirdropAfterView {
+  readonly stamp: AirdropStamp | null;
+  readonly soldWithin24h: AirdropMoveView;
+  readonly soldWithin7d: AirdropMoveView;
+  /** Moved to another owner within 24 hours without a sale; `destination` names where the largest part went. */
+  readonly movedOut24h: AirdropMoveView & { readonly destination: 'program' | 'exchange' | 'wallet' | 'unknown' | null };
+  /** The largest day one move went into a program (a pool, a vault, staking): counted as kept by the method. */
+  readonly deposited24h: boolean;
+  readonly held30d: AirdropCheckpointView;
+  readonly held90d: AirdropCheckpointView;
+}
+
+export interface AirdropReceivedView {
+  readonly raw: string;
+  readonly amount: string;
+  /** The locked part the claims recorded, paid out as it unlocks; null when the programme has none. */
+  readonly lockedRaw: string | null;
+  readonly lockedAmount: string | null;
+  readonly claims: number;
+  readonly firstClaimAt: string;
+  readonly lastClaimAt: string;
+}
+
+/** How far the measurement got: a partial one says why and whether it goes on. */
+export interface AirdropMeasuredView {
+  /** ISO 8601 up to when the claim accounts' history is known; null when not measured. */
+  readonly completeUntil: string | null;
+  readonly partial: boolean;
+  /**
+   * `daily_cap`: the day's credits for this wallet ran out before the claim accounts were read; the
+   * rest comes the next day. `large_wallet`: a claim account's history is longer than the size cap.
+   * `window_not_ended`: a checkpoint lies in the future. `not_measured`: the wallet's history has
+   * not been read yet.
+   */
+  readonly reason: 'daily_cap' | 'large_wallet' | 'window_not_ended' | 'not_measured' | null;
+}
+
+export interface AirdropOutcomeView {
+  readonly programme: string;
+  /** From the config, never from chain metadata. */
+  readonly name: string;
+  readonly token: string;
+  readonly mint: string;
+  readonly decimals: number;
+  readonly window: AirdropWindowView;
+  /**
+   * `yes` when the wallet claimed. Without a public eligibility list for the programme a wallet that
+   * did not claim is `unknown`: the core never guesses eligibility.
+   */
+  readonly eligible: 'yes' | 'unknown';
+  readonly claimed: boolean;
+  /** The window is still open and the wallet has not claimed: "you may still claim until `window.end`". */
+  readonly openAndUnclaimed: boolean;
+  readonly received: AirdropReceivedView | null;
+  readonly after: AirdropAfterView | null;
+  readonly value: AirdropValueView | null;
+  readonly measured: AirdropMeasuredView;
+  readonly factIds: readonly string[];
+  /** The claim transactions; present only when the wallet claimed. */
+  readonly proofs?: NonEmptyArray<Proof>;
+}
+
+/** One row of the shareable "Airdrop Record" card: the data, the app or the engine draws it. */
+export interface AirdropCardRow {
+  readonly programme: string;
+  readonly name: string;
+  readonly token: string;
+  readonly claimed: boolean;
+  readonly stamp: AirdropStamp | null;
+  /** Whole tokens received, formatted; null when not claimed. */
+  readonly amount: string | null;
+}
+
+export interface AirdropCardView {
+  /** The wallet shortened to its first and last four characters, as the card prints it. */
+  readonly wallet: string;
+  readonly measured: number;
+  readonly claimed: number;
+  /** Programmes stamped "Held 90 days" or "Held 30 days": the card's one strong number. */
+  readonly held: number;
+  readonly rows: readonly AirdropCardRow[];
+  /** The "On Solana" lines (name and value), when the wallet's history was read. */
+  readonly onSolana: readonly { readonly name: string; readonly value: string }[];
+}
+
+export interface YourAirdropsWalletView {
+  readonly address: string;
+  readonly coverage: Coverage;
+  readonly programmes: readonly AirdropOutcomeView[];
+  readonly summary: {
+    readonly measured: number;
+    readonly claimed: number;
+    readonly held: number;
+    readonly openAndUnclaimed: number;
+  };
+  readonly card: AirdropCardView;
+}
+
+export interface YourAirdropsResponse {
+  readonly meta: ResponseMeta;
+  readonly wallets: readonly YourAirdropsWalletView[];
+  /** The thresholds the outcomes were measured with, as the reports print them. */
+  readonly method: { readonly dayOneHours: number; readonly dayOneMinPct: number; readonly heldMinPct: number; readonly checkpointDays: readonly number[]; readonly soldWithinDays: readonly number[] };
+}
+
+export type ApiResponse = PassportResponse | WalletCheckResponse | TokenCheckResponse | FoundResponse | YourAirdropsResponse;

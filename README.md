@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.4.1"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.5.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.5.0:** `airdrops()`, `POST /v1/passport/airdrops`: "Your airdrops" for linked wallets, per measured programme what the wallet claimed, did and what it was worth, with the price source and time, an open window it has not claimed from, and the data of the shareable Airdrop Record card. No EP, no level.
 * **1.4.1:** the client's timeout covers the response body too (a body that stalls after the headers ends with the timeout); `coverage.limitedBy` is `"daily_cap"` also when the product's share of the day's credits stopped a read after at least one page, and what was read is kept and answered. No new field.
 * **1.4.0:** Noventia for Projects (`projects.ts`, every type under `/v1/projects` and the passport's `labels` and `appeals` calls): sign in with the authority wallet (Sign In With Solana) or a Firebase Auth email link, the team, list checks with labels that carry proofs (`ListLabel`, `ClusterView`, the exclusions file), appeals, the live report after a distribution (`LiveReportResponse`), the public page and badge; the error codes `not_a_member`, `not_authority`, `no_authority`, `challenge_expired`, `invalid_signature`, `session_expired`, `forbidden_role`, `list_too_large`, `quota_exceeded`, `list_not_ready`. The engine's mock answers every call from a demo project.
 * **1.3.0:** `coverage.limitedBy` can be `"daily_cap"`: the day's credits for this wallet are spent, the answer holds what was read so far (`readFrom` says since when), and the rest is read on the following days until the history is complete. With no facts yet, show "Still reading your history, more tomorrow"; with facts, "since at least <readFrom>".
