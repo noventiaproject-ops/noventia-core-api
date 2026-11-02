@@ -72,7 +72,8 @@ export interface Coverage {
   /**
    * `large_wallet`: the history is longer than the size cap. `request_budget`: this call's page budget
    * ran out; the rest is read in the background. `daily_cap` (1.3.0): the day's credits for this
-   * wallet are spent; the rest is read the next day, until it is complete. With `daily_cap` and no
+   * wallet are spent, its own share or the product's share for every wallet (1.4.1); what was read
+   * is kept and the rest is read the next day, until it is complete. With `daily_cap` and no
    * facts yet, the app says "Still reading your history, more tomorrow"; with facts, "since at least
    * <readFrom>".
    */

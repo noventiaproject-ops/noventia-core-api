@@ -50,14 +50,19 @@ export function createCoreClient(options: CoreClientOptions) {
     if (body !== undefined) headers['content-type'] = 'application/json';
     if (withKey && options.key !== undefined) headers['authorization'] = `Bearer ${options.key}`;
     let res: Response;
+    let json: unknown;
     try {
       res = await doFetch(`${base}${path}`, { method, headers, signal: controller.signal, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+      // The body is read under the same timer: a body that stalls after the headers ends with the timeout too.
+      json = await res.json().catch((err: unknown) => {
+        if (controller.signal.aborted) throw err;
+        return null;
+      });
     } catch (err) {
       throw new CoreApiError(0, 'network', err instanceof Error ? err.message : 'No answer.');
     } finally {
       clearTimeout(timer);
     }
-    const json = (await res.json().catch(() => null)) as unknown;
     if (!res.ok) {
       const e = (json as ApiError | null)?.error;
       const retry = Number(res.headers.get('retry-after'));
