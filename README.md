@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.5.1"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.6.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.6.0:** a transaction proof may carry `slot`, the slot the transaction was confirmed in, when the core had the transaction in hand (data model version 2). No other change.
 * **1.5.1:** `GET /v1/health` answers status only; `credits` is no longer sent (the balance is private to the owner). No field removed from the type.
 * **1.5.0:** `airdrops()`, `POST /v1/passport/airdrops`: "Your airdrops" for linked wallets, per measured programme what the wallet claimed, did and what it was worth, with the price source and time, an open window it has not claimed from, and the data of the shareable Airdrop Record card. No EP, no level.
 * **1.4.1:** the client's timeout covers the response body too (a body that stalls after the headers ends with the timeout); `coverage.limitedBy` is `"daily_cap"` also when the product's share of the day's credits stopped a read after at least one page, and what was read is kept and answered. No new field.

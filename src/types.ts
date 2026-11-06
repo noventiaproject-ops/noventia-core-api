@@ -21,6 +21,8 @@ export type SubjectId = string;
 export interface SolanaTxProof {
   readonly kind: 'solana-tx';
   readonly signature: string;
+  /** The slot the transaction was confirmed in, when the core had the transaction in hand (1.6.0). */
+  readonly slot?: number;
 }
 
 /** The state of an account at a slot: a mint's authorities, a token account's balance. */
