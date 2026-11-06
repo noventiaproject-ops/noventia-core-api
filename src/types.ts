@@ -285,8 +285,11 @@ export interface HealthResponse {
   /** The server build (git commit) when known. */
   readonly build: string | null;
   readonly database: 'ok' | 'unreachable';
-  /** Chain reading credits left today and this month under the server's budget; null when unknown. */
-  readonly credits: { readonly dayLeft: number; readonly monthLeft: number } | null;
+  /**
+   * Not sent since 1.5.1: the credit balance is private to the owner and appears on no endpoint. The
+   * field stays in the type so a client written against 1.0.0 still compiles; it is always absent.
+   */
+  readonly credits?: { readonly dayLeft: number; readonly monthLeft: number } | null;
 }
 
 /** A number on the developer card, with the transactions behind it. */
