@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.6.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.7.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.7.0:** `BranchStanding.seals` (the level seals L1 to L5 as the branch earned them), `Freeze.appealUrl` and `Freeze.caseStatus`, `GET /v1/rules` with `RulesResponse` and the client's `rules()`, the passport appeal with `caseId` for the case behind a freeze, the appeal statuses `case_kept` and `case_released`. A frozen branch answers `level: null` until its case is decided, its EP kept. No field removed.
 * **1.6.0:** a transaction proof may carry `slot`, the slot the transaction was confirmed in, when the core had the transaction in hand (data model version 2). No other change.
 * **1.5.1:** `GET /v1/health` answers status only; `credits` is no longer sent (the balance is private to the owner). No field removed from the type.
 * **1.5.0:** `airdrops()`, `POST /v1/passport/airdrops`: "Your airdrops" for linked wallets, per measured programme what the wallet claimed, did and what it was worth, with the price source and time, an open window it has not claimed from, and the data of the shareable Airdrop Record card. No EP, no level.

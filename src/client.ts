@@ -9,7 +9,7 @@
  * app bundle or a web page.
  */
 
-import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, PassportRequest, PassportResponse, RpcRequest, RpcResponse, TokenCheckResponse, WalletCheckResponse, YourAirdropsRequest, YourAirdropsResponse } from './types.js';
+import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, PassportRequest, PassportResponse, RpcRequest, RpcResponse, RulesResponse, TokenCheckResponse, WalletCheckResponse, YourAirdropsRequest, YourAirdropsResponse } from './types.js';
 
 export type CoreClientOptions = {
   /** Without a trailing slash, for example the mock server http://127.0.0.1:8788. */
@@ -90,6 +90,8 @@ export function createCoreClient(options: CoreClientOptions) {
      * signature status instead of sending it again.
      */
     rpc: (request: RpcRequest) => call<RpcResponse>('POST', '/v1/rpc', request),
+    /** GET /v1/rules (1.7.0): the rules the core applies, with versions, EP tables and thresholds. No key. */
+    rules: () => call<RulesResponse>('GET', '/v1/rules'),
   };
 }
 

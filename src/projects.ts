@@ -191,7 +191,8 @@ export const LABEL_TEXT: Readonly<Record<ListLabelCode, string>> = {
   not_read: 'Not read',
 };
 
-export type AppealStatus = 'open' | 'in_review' | 'label_kept' | 'label_lifted';
+/** `case_kept` and `case_released` (1.7.0): the decision on the case behind a freeze. */
+export type AppealStatus = 'open' | 'in_review' | 'label_kept' | 'label_lifted' | 'case_kept' | 'case_released';
 
 export interface AppealRef {
   readonly appealId: string;
@@ -390,7 +391,9 @@ export interface PassportLabelsResponse {
 /** POST /v1/passport/appeals with the app key, for a wallet of that passport. */
 export interface PassportAppealRequest {
   readonly wallets: readonly string[];
-  readonly labelId: string;
+  /** The label appealed, or (1.7.0) the case behind a freeze: one of the two. */
+  readonly labelId?: string;
+  readonly caseId?: string;
   readonly statement: string;
 }
 

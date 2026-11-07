@@ -101,7 +101,11 @@ export interface EpEvent {
   readonly factIds: NonEmptyArray<string>;
 }
 
-/** A wallet in a farm cluster earns no new EP until a review case is decided. */
+/**
+ * A wallet in a farm cluster: since when, the case, the cluster's size and the wallet's own funding
+ * transaction. The EP earned before stays and the wallet adds no event after `since`; every branch of
+ * the passport shows `frozen`, with no level, until the case is decided (owner, 7 November 2026).
+ */
 export interface Freeze {
   readonly reason: 'farm_cluster';
   /** ISO 8601, UTC. */
@@ -111,10 +115,14 @@ export interface Freeze {
   readonly clusterSize: number;
   /** The subject's own funding transaction. */
   readonly proofs: NonEmptyArray<Proof>;
+  /** Where the owner answers the case (1.7.0). Null until the appeal flow has a page. */
+  readonly appealUrl?: string | null;
+  /** The case behind the freeze (1.7.0): open, answered by the owner, under review, appealed, or decided with the freeze kept. */
+  readonly caseStatus?: 'open' | 'owner_answering' | 'under_review' | 'decided' | 'appealed';
 }
 
 /**
- * `active`: EP and level computed. `frozen`: EP as it stood when the freeze began.
+ * `active`: EP and level computed. `frozen`: the EP earned before the freeze, no level until the case is decided.
  * `little_history`: too few facts for a level. `not_configured`: the branch config has no value yet.
  * `private`: the owner has not opened this branch to the viewer. `later`: no rules yet (LP, Early).
  */
@@ -135,6 +143,19 @@ export interface AutomationFlag {
   readonly appealUrl: string | null;
 }
 
+/**
+ * A level seal (1.7.0): set the moment the branch's EP first reached a level's threshold, with the
+ * facts behind every event up to it. Earned once from the facts, it is earned again by every later
+ * evaluation; while the branch is frozen it is `suspended`, never removed.
+ */
+export interface SealView {
+  readonly code: 'L1' | 'L2' | 'L3' | 'L4' | 'L5';
+  /** ISO 8601, UTC: the time of the event that reached the threshold. */
+  readonly earnedAt: string;
+  readonly factIds: NonEmptyArray<string>;
+  readonly status: 'earned' | 'suspended';
+}
+
 /** The only place EP and a level appear. Both count within this one branch. */
 export interface BranchStanding {
   readonly branch: BranchId;
@@ -148,6 +169,8 @@ export interface BranchStanding {
   readonly freeze: Freeze | null;
   /** Trader only: set when the wallet looks automated and no appeal has cleared it. */
   readonly flag: AutomationFlag | null;
+  /** Level seals (1.7.0), L1 upwards in the order earned; suspended while the branch is frozen. */
+  readonly seals?: readonly SealView[];
   readonly ruleId: string;
   readonly ruleVersion: number;
 }
@@ -618,4 +641,39 @@ export interface YourAirdropsResponse {
   readonly method: { readonly dayOneHours: number; readonly dayOneMinPct: number; readonly heldMinPct: number; readonly checkpointDays: readonly number[]; readonly soldWithinDays: readonly number[] };
 }
 
-export type ApiResponse = PassportResponse | WalletCheckResponse | TokenCheckResponse | FoundResponse | YourAirdropsResponse;
+/** One rule the core runs, as GET /v1/rules lists it (1.7.0). */
+export interface RuleView {
+  readonly ruleId: string;
+  /** Bumped on every change of logic or thresholds; recorded next to every result. */
+  readonly version: number;
+  readonly modelVersion: number;
+  /** The fact kinds the rule reads. */
+  readonly inputs: readonly string[];
+  readonly outputs: readonly string[];
+  readonly description: string;
+  /** Set on the branch rules. */
+  readonly branch?: BranchId;
+}
+
+/** A branch's EP table and thresholds as the core applies them (1.7.0). */
+export interface BranchRulesView {
+  readonly branch: BranchId;
+  readonly stage: 'now' | 'later';
+  readonly events: readonly { readonly event: string; readonly when: string; readonly facts: readonly string[]; readonly ep: number | null; readonly cap: { readonly count: number; readonly per: string } | null }[];
+  /** EP needed for L1 to L5; null while not set. */
+  readonly thresholds: readonly (number | null)[];
+}
+
+/** GET /v1/rules (1.7.0): the rules, open and versioned. No key. */
+export interface RulesResponse {
+  readonly meta: ResponseMeta;
+  readonly modelVersion: number;
+  readonly rules: readonly RuleView[];
+  readonly branches: readonly BranchRulesView[];
+  /** What every answer keeps, checked before it leaves the server. */
+  readonly invariants: readonly string[];
+  /** The freeze in plain words: what it does, until when, how the owner answers. */
+  readonly freeze: { readonly what: string; readonly until: string; readonly appeal: string };
+}
+
+export type ApiResponse = PassportResponse | WalletCheckResponse | TokenCheckResponse | FoundResponse | YourAirdropsResponse | RulesResponse;
