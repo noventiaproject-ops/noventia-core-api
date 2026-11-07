@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.12.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.13.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.13.0:** `pioneerHall()` (GET /v1/pioneers/hall, app key): every Pioneer in number order with the public id, the status and the date, and the retired numbers. `retirePioneer()` takes the Noventia ID with the number: a held number is retired for its own holder, whose status ends; `RetirePioneerResponse.holder`. No field removed.
 * **1.12.0:** `TokenCheckResponse.creatorRead`: how far the creator's history was read (`checked` with the coverage limit as the reason), or `not_checked` with `listed_asset` on a listed asset's own mint, where no creator history is read at all. No field removed.
 * **1.11.0:** the token check on a listed asset's own mint: no creator warning, the top holders' share an `issuerPowers` entry with `power: "concentration"` and its text, never a warning; `official.listVersion`, the version of the official mint list. Nothing else changes; a copy of a listed name or ticker keeps every warning.
 * **1.10.0:** Pioneers (`pioneers.ts`): `PIONEER_PLACES` (250, the one value the app and the sites read), `pioneers()` (GET /v1/pioneers: the places, the taken count and the rule), `keepPioneer()` and `retirePioneer()` for the app's backend; `PassportResponse.pioneer` (the number, the status, the seal) and `PublicCardResponse.pioneer` (the number and the status). No field removed.

@@ -57,13 +57,40 @@ export interface KeepPioneerResponse {
   readonly already: boolean;
 }
 
-/** POST /v1/pioneers/retire (app key): a number of a deleted account, never given again. */
+/**
+ * POST /v1/pioneers/retire (app key): a deleted account's number, never given again. From 1.13.0 the
+ * Noventia ID comes with it: a number still held is retired only for its own holder, whose Pioneer
+ * status ends with it (the passport and the card stop showing it); the taken count stays the same.
+ * A number retired before answers `retired: false` and changes nothing; a number never given is refused.
+ */
 export interface RetirePioneerRequest {
   readonly number: number;
+  /** The holder's public id; needed when the number is still held. */
+  readonly noventiaId?: string;
 }
 
 export interface RetirePioneerResponse {
   readonly meta: ResponseMeta;
   readonly number: number;
   readonly retired: boolean;
+  /** The holder whose status ended with this call, or null (1.13.0). */
+  readonly holder?: string | null;
+}
+
+/** One row of the Hall: the public id, the number, the status, when it was earned. */
+export interface HallRow {
+  readonly number: number;
+  readonly noventiaId: string;
+  readonly status: PioneerStatus;
+  readonly earnedAt: string;
+}
+
+/** GET /v1/pioneers/hall (1.13.0, app key): every Pioneer in number order and the retired numbers, for the app's Hall. */
+export interface HallResponse {
+  readonly meta: ResponseMeta;
+  readonly places: number;
+  readonly taken: number;
+  readonly left: number;
+  readonly pioneers: readonly HallRow[];
+  readonly retired: readonly number[];
 }

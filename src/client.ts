@@ -10,7 +10,7 @@
  */
 
 import type { DoorCheckRequest, DoorCheckResponse, DoorsResponse, JoinCampaignRequest, JoinCampaignResponse, PublicCampaignsResponse } from './doors.js';
-import type { KeepPioneerRequest, KeepPioneerResponse, PioneersResponse, RetirePioneerRequest, RetirePioneerResponse } from './pioneers.js';
+import type { HallResponse, KeepPioneerRequest, KeepPioneerResponse, PioneersResponse, RetirePioneerRequest, RetirePioneerResponse } from './pioneers.js';
 import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, LinkWalletRequest, LinkWalletResponse, PassportRequest, PassportResponse, PrivacyRequest, PrivacyResponse, PublicCardResponse, UnlinkWalletRequest, UnlinkWalletResponse, RpcRequest, RpcResponse, RulesResponse, TokenCheckResponse, WalletCheckResponse, YourAirdropsRequest, YourAirdropsResponse } from './types.js';
 
 export type CoreClientOptions = {
@@ -116,6 +116,8 @@ export function createCoreClient(options: CoreClientOptions) {
     keepPioneer: (request: KeepPioneerRequest) => call<KeepPioneerResponse>('POST', '/v1/pioneers/keep', request, true),
     /** POST /v1/pioneers/retire (1.10.0): a deleted account's number, never given again. Needs the app's key. */
     retirePioneer: (request: RetirePioneerRequest) => call<RetirePioneerResponse>('POST', '/v1/pioneers/retire', request, true),
+    /** GET /v1/pioneers/hall (1.13.0): every Pioneer in number order and the retired numbers, for the app's Hall. Needs the app's key. */
+    pioneerHall: () => call<HallResponse>('GET', '/v1/pioneers/hall', undefined, true),
   };
 }
 
