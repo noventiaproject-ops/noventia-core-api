@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.14.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.15.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.15.0:** `TokenCheckResponse.creatorShare`: the creator's share of the supply at launch and at 1 hour, 24 hours, 7 days, 30 days and now, from the creator's own movements, each checkpoint with its transactions; `not_reached` and `unknown` checkpoints said as such; null on a listed asset's own mint. No warning comes from it. No field removed.
 * **1.14.0:** `searchTokens(q)` (GET /v1/search/tokens?q=, no key): the tokens the core has checked whose name or ticker matches, each with its mint, escaped name and ticker, when the core first saw it and last checked it, and whether it is a listed asset or a copy; the listed assets that match, checked or not. `scope: "checked_by_noventia"`, never all tokens, no score. No field removed.
 * **1.13.0:** `pioneerHall()` (GET /v1/pioneers/hall, app key): every Pioneer in number order with the public id, the status and the date, and the retired numbers. `retirePioneer()` takes the Noventia ID with the number: a held number is retired for its own holder, whose status ends; `RetirePioneerResponse.holder`. No field removed.
 * **1.12.0:** `TokenCheckResponse.creatorRead`: how far the creator's history was read (`checked` with the coverage limit as the reason), or `not_checked` with `listed_asset` on a listed asset's own mint, where no creator history is read at all. No field removed.

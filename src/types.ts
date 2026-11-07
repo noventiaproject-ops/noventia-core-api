@@ -478,6 +478,33 @@ export interface OfficialAssetView {
   readonly listVersion?: number;
 }
 
+/** One checkpoint of the creator's share (1.15.0). */
+export interface CreatorShareCheckpointView {
+  readonly id: 'launch' | '1h' | '24h' | '7d' | '30d' | 'now';
+  /** ISO 8601, UTC. */
+  readonly at: string;
+  /** The creator's balance of the token then, raw units. */
+  readonly heldRaw: string;
+  /** Percent of the supply, two decimals; null when not known. */
+  readonly sharePct: number | null;
+  /** `known`; `not_reached` (the time is still ahead); `unknown` (the creator's history is not read up to it). */
+  readonly status: 'known' | 'not_reached' | 'unknown';
+  /** The launch and the newest movements up to the checkpoint. */
+  readonly proofs: readonly Proof[];
+}
+
+/** The creator's share of the supply over time (1.15.0). No warning comes from it; the first day rules keep their thresholds. */
+export interface CreatorShareView {
+  readonly allocationRaw: string;
+  /** The supply the shares are against: the mint's supply at the read. */
+  readonly supplyRaw: string;
+  readonly checkpoints: readonly CreatorShareCheckpointView[];
+  /** True when the creator's history was not read in full: a share may be a lower bound. */
+  readonly partial: boolean;
+  readonly ruleId: string;
+  readonly ruleVersion: number;
+}
+
 /** A power of a listed asset's issuer, shown as a fact on that asset's own mint; from 1.11.0 also the top holders' share (`concentration`), a fact there and never a warning. */
 export interface IssuerPowerView {
   readonly power: 'mint' | 'freeze' | 'permanentDelegate' | 'transferHook' | 'defaultFrozen' | 'concentration';
@@ -527,6 +554,12 @@ export interface TokenCheckResponse {
    * is read at all. Absent when no creator could be proven.
    */
   readonly creatorRead?: CheckStatus;
+  /**
+   * The creator's share of the supply over time (1.15.0): at launch and at each checkpoint after it, from
+   * the creator's own movements, each with the transactions behind it. Null when no creator was proven, the
+   * creator's facts hold no launch of this mint, or no creator history is read (a listed asset's own mint).
+   */
+  readonly creatorShare?: CreatorShareView | null;
   /** This launch: creation, liquidity removed, first day sales and moves. */
   readonly launch: readonly FactView[];
   readonly warnings: readonly Warning[];
