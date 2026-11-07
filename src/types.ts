@@ -474,11 +474,13 @@ export interface OfficialAssetView {
   /** True: this token is the listed asset. False: it uses the listed ticker or name under another mint. */
   readonly isThisMint: boolean;
   readonly matchedOn: 'mint' | 'ticker' | 'name';
+  /** The version of the official list the match came from (1.11.0). */
+  readonly listVersion?: number;
 }
 
-/** A power of a listed asset's issuer, shown as a fact on that asset's own mint. */
+/** A power of a listed asset's issuer, shown as a fact on that asset's own mint; from 1.11.0 also the top holders' share (`concentration`), a fact there and never a warning. */
 export interface IssuerPowerView {
-  readonly power: 'mint' | 'freeze' | 'permanentDelegate' | 'transferHook' | 'defaultFrozen';
+  readonly power: 'mint' | 'freeze' | 'permanentDelegate' | 'transferHook' | 'defaultFrozen' | 'concentration';
   /** For example "Issuer can freeze, as with every regulated stablecoin". */
   readonly text: string;
   readonly factIds: readonly string[];
