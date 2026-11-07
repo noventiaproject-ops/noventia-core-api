@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.9.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.10.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.10.0:** Pioneers (`pioneers.ts`): `PIONEER_PLACES` (250, the one value the app and the sites read), `pioneers()` (GET /v1/pioneers: the places, the taken count and the rule), `keepPioneer()` and `retirePioneer()` for the app's backend; `PassportResponse.pioneer` (the number, the status, the seal) and `PublicCardResponse.pioneer` (the number and the status). No field removed.
 * **1.9.0:** the doors (`doors.ts`): `doors()` (GET /v1/doors: the six doors with their stage and every open campaign), `publicCampaigns(slug)`, `doorCheck()` (the holder's own eligibility to a question, with the levels), `joinCampaign()` (the holder joins a campaign, the answer kept as the entry); a project's campaigns under `/v1/projects/{id}/campaigns` (create, list, one, close, entries). `PrivacyRequest.projectId` opens a branch to one project; `PrivacyResponse.grantee`. The error codes `campaign_closed` and `campaign_full`. No field removed.
 * **1.8.0:** the core keeps the wallet links: `linkWallet()` (POST /v1/passport/links, the signed link message checked again by the core), `unlinkWallet()`, `setPrivacy()` (POST /v1/passport/privacy: a branch opened or closed on the public card, the sharing switch; private by default), `publicCard()` (GET /v1/passport/card/{noventiaId}, no key: the opened branches with level and seals, never a wallet, a fact or EP). `POST /v1/passport` may leave `wallets` out when `noventiaId` is given, and answers `holder`, `privacy`, `sharing` and `views` when the core knows the holder. No field removed.
 * **1.7.0:** `BranchStanding.seals` (the level seals L1 to L5 as the branch earned them), `Freeze.appealUrl` and `Freeze.caseStatus`, `GET /v1/rules` with `RulesResponse` and the client's `rules()`, the passport appeal with `caseId` for the case behind a freeze, the appeal statuses `case_kept` and `case_released`. A frozen branch answers `level: null` until its case is decided, its EP kept. No field removed.

@@ -10,6 +10,8 @@
  */
 
 /** Plain JSON, as facts carry it. */
+import type { PioneerPublicView, PioneerView } from './pioneers.js';
+
 export type JsonValue = string | number | boolean | null | readonly JsonValue[] | { readonly [key: string]: JsonValue };
 
 export type NonEmptyArray<T> = readonly [T, ...T[]];
@@ -230,6 +232,8 @@ export interface PassportResponse {
   readonly privacy?: Readonly<Record<BranchId, BranchPrivacy>>;
   readonly sharing?: boolean;
   readonly views?: { readonly card: number };
+  /** The holder's Pioneer status (1.10.0), when earned or kept. */
+  readonly pioneer?: PioneerView;
 }
 
 /** POST /v1/passport/links (1.8.0): a wallet the holder linked by signing the link message. The core checks the signature again. App key. */
@@ -326,6 +330,8 @@ export interface PublicCardResponse {
   readonly onSolanaSince: string | null;
   readonly sharing: boolean;
   readonly attestation: AttestationRef | null;
+  /** The Pioneer number and status (1.10.0): the Hall is public, whatever the privacy of the branches. Absent before 1.10.0. */
+  readonly pioneer?: PioneerPublicView | null;
 }
 
 /** One measured airdrop programme the wallet claimed from. */

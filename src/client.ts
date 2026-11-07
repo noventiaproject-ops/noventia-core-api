@@ -10,6 +10,7 @@
  */
 
 import type { DoorCheckRequest, DoorCheckResponse, DoorsResponse, JoinCampaignRequest, JoinCampaignResponse, PublicCampaignsResponse } from './doors.js';
+import type { KeepPioneerRequest, KeepPioneerResponse, PioneersResponse, RetirePioneerRequest, RetirePioneerResponse } from './pioneers.js';
 import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, LinkWalletRequest, LinkWalletResponse, PassportRequest, PassportResponse, PrivacyRequest, PrivacyResponse, PublicCardResponse, UnlinkWalletRequest, UnlinkWalletResponse, RpcRequest, RpcResponse, RulesResponse, TokenCheckResponse, WalletCheckResponse, YourAirdropsRequest, YourAirdropsResponse } from './types.js';
 
 export type CoreClientOptions = {
@@ -109,6 +110,12 @@ export function createCoreClient(options: CoreClientOptions) {
     doorCheck: (request: DoorCheckRequest) => call<DoorCheckResponse>('POST', '/v1/passport/doors/eligibility', request, true),
     /** POST /v1/passport/doors/join (1.9.0): the holder joins a campaign; the answer is kept as the entry. Needs the app's key. */
     joinCampaign: (request: JoinCampaignRequest) => call<JoinCampaignResponse>('POST', '/v1/passport/doors/join', request, true),
+    /** GET /v1/pioneers (1.10.0): the places, the taken count and the rule. No key; the sites read it at build time. */
+    pioneers: () => call<PioneersResponse>('GET', '/v1/pioneers'),
+    /** POST /v1/pioneers/keep (1.10.0): a Pioneer from before the core keeps the number with the Noventia ID. Needs the app's key. */
+    keepPioneer: (request: KeepPioneerRequest) => call<KeepPioneerResponse>('POST', '/v1/pioneers/keep', request, true),
+    /** POST /v1/pioneers/retire (1.10.0): a deleted account's number, never given again. Needs the app's key. */
+    retirePioneer: (request: RetirePioneerRequest) => call<RetirePioneerResponse>('POST', '/v1/pioneers/retire', request, true),
   };
 }
 
