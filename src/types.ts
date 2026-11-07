@@ -193,10 +193,27 @@ export interface AttestationRef {
   readonly rulesVersion: string;
 }
 
-/** POST /v1/passport: the passport of a set of wallets, each linked by a signature. */
+/**
+ * POST /v1/passport: the passport of a set of wallets, each linked by a signature. From 1.8.0 the
+ * wallets may be left out when `noventiaId` is given: the core then reads the wallets the holder
+ * linked through POST /v1/passport/links.
+ */
 export interface PassportRequest {
-  /** 1 to 10 addresses. */
-  readonly wallets: readonly string[];
+  /** 1 to 10 addresses. Absent (1.8.0): the holder's own links.  */
+  readonly wallets?: readonly string[];
+  readonly noventiaId?: string;
+}
+
+/** Who may see a branch: private until the owner opens it (1.8.0). */
+export type BranchPrivacy = 'private' | 'public';
+
+/** The holder behind a passport, when the core knows it (1.8.0). */
+export interface HolderView {
+  /** `person:<Noventia ID>` or `agent:<id>`. */
+  readonly holderId: string;
+  readonly type: 'person' | 'agent';
+  /** Wallets linked today. */
+  readonly wallets: number;
 }
 
 export interface PassportResponse {
@@ -207,6 +224,103 @@ export interface PassportResponse {
   /** One standing per branch, in BRANCH_IDS order. */
   readonly branches: readonly BranchStanding[];
   readonly warnings: readonly Warning[];
+  readonly attestation: AttestationRef | null;
+  /** The holder, its privacy per branch, the sharing switch and the views of its public card in the last 30 days (1.8.0): only when the core knows the holder. */
+  readonly holder?: HolderView;
+  readonly privacy?: Readonly<Record<BranchId, BranchPrivacy>>;
+  readonly sharing?: boolean;
+  readonly views?: { readonly card: number };
+}
+
+/** POST /v1/passport/links (1.8.0): a wallet the holder linked by signing the link message. The core checks the signature again. App key. */
+export interface LinkWalletRequest {
+  readonly noventiaId?: string;
+  /** `person` (default, with `noventiaId`) or `agent` (with `agentId`). */
+  readonly holderType?: 'person' | 'agent';
+  readonly agentId?: string;
+  readonly address: string;
+  /** The Sign In With Solana text the wallet signed, as the app built it: it names the wallet and the holder. */
+  readonly message: string;
+  /** Base58 signature of the message by the wallet. */
+  readonly signature: string;
+}
+
+export interface LinkWalletResponse {
+  readonly meta: ResponseMeta;
+  readonly holderId: string;
+  readonly address: string;
+  /** ISO 8601, UTC. */
+  readonly linkedAt: string;
+  /** True when the wallet was linked to this holder before. */
+  readonly already: boolean;
+  /** Wallets linked to the holder now. */
+  readonly wallets: number;
+}
+
+/** POST /v1/passport/links/remove (1.8.0). App key. */
+export interface UnlinkWalletRequest {
+  readonly noventiaId?: string;
+  readonly holderType?: 'person' | 'agent';
+  readonly agentId?: string;
+  readonly address: string;
+}
+
+export interface UnlinkWalletResponse {
+  readonly meta: ResponseMeta;
+  readonly holderId: string;
+  readonly address: string;
+  readonly unlinked: boolean;
+}
+
+/** POST /v1/passport/privacy (1.8.0): the owner opens or closes a branch on the public card, or turns sharing on or off. App key. */
+export interface PrivacyRequest {
+  readonly noventiaId?: string;
+  readonly holderType?: 'person' | 'agent';
+  readonly agentId?: string;
+  readonly branch?: BranchId;
+  /** True closes the branch, false opens it. */
+  readonly private?: boolean;
+  /** Whether the card may be indexed and shared; off by default. */
+  readonly sharing?: boolean;
+}
+
+export interface PrivacyResponse {
+  readonly meta: ResponseMeta;
+  readonly holderId: string;
+  readonly privacy: Readonly<Record<BranchId, BranchPrivacy>>;
+  readonly sharing: boolean;
+}
+
+/** A seal as the public card shows it (1.8.0): without the facts behind it. */
+export interface PublicSealView {
+  readonly code: SealView['code'];
+  readonly earnedAt: string;
+  readonly status: SealView['status'];
+}
+
+/** One branch the owner opened, on the public card. */
+export interface PublicCardBranch {
+  readonly branch: BranchId;
+  readonly status: BranchStatus;
+  readonly level: LevelNumber | null;
+  readonly seals: readonly PublicSealView[];
+}
+
+/**
+ * GET /v1/passport/card/{noventiaId} (1.8.0): what anyone sees. No key. Only the branches the owner
+ * opened, each with its level and seals; never a wallet, a fact, EP or a total. From stored facts,
+ * no chain read.
+ */
+export interface PublicCardResponse {
+  readonly meta: ResponseMeta;
+  readonly found: boolean;
+  readonly noventiaId: string;
+  readonly branches: readonly PublicCardBranch[];
+  /** YYYY-MM-DD of the earliest event among the opened branches. */
+  readonly firstFactDate: string | null;
+  /** YYYY-MM of the oldest linked wallet's first transaction. */
+  readonly onSolanaSince: string | null;
+  readonly sharing: boolean;
   readonly attestation: AttestationRef | null;
 }
 
@@ -676,4 +790,4 @@ export interface RulesResponse {
   readonly freeze: { readonly what: string; readonly until: string; readonly appeal: string };
 }
 
-export type ApiResponse = PassportResponse | WalletCheckResponse | TokenCheckResponse | FoundResponse | YourAirdropsResponse | RulesResponse;
+export type ApiResponse = PassportResponse | WalletCheckResponse | TokenCheckResponse | FoundResponse | YourAirdropsResponse | RulesResponse | LinkWalletResponse | UnlinkWalletResponse | PrivacyResponse | PublicCardResponse;
