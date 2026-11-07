@@ -10,6 +10,7 @@
  */
 
 import type { DoorCheckRequest, DoorCheckResponse, DoorsResponse, JoinCampaignRequest, JoinCampaignResponse, PublicCampaignsResponse } from './doors.js';
+import type { TokenSearchResponse } from './search.js';
 import type { HallResponse, KeepPioneerRequest, KeepPioneerResponse, PioneersResponse, RetirePioneerRequest, RetirePioneerResponse } from './pioneers.js';
 import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, LinkWalletRequest, LinkWalletResponse, PassportRequest, PassportResponse, PrivacyRequest, PrivacyResponse, PublicCardResponse, UnlinkWalletRequest, UnlinkWalletResponse, RpcRequest, RpcResponse, RulesResponse, TokenCheckResponse, WalletCheckResponse, YourAirdropsRequest, YourAirdropsResponse } from './types.js';
 
@@ -118,6 +119,8 @@ export function createCoreClient(options: CoreClientOptions) {
     retirePioneer: (request: RetirePioneerRequest) => call<RetirePioneerResponse>('POST', '/v1/pioneers/retire', request, true),
     /** GET /v1/pioneers/hall (1.13.0): every Pioneer in number order and the retired numbers, for the app's Hall. Needs the app's key. */
     pioneerHall: () => call<HallResponse>('GET', '/v1/pioneers/hall', undefined, true),
+    /** GET /v1/search/tokens?q= (1.14.0): the tokens the core has checked whose name or ticker matches, and the listed assets that match. No key. */
+    searchTokens: (q: string) => call<TokenSearchResponse>('GET', `/v1/search/tokens?q=${encodeURIComponent(q)}`),
   };
 }
 
