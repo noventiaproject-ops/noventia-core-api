@@ -280,6 +280,8 @@ export interface PrivacyRequest {
   readonly branch?: BranchId;
   /** True closes the branch, false opens it. */
   readonly private?: boolean;
+  /** 1.9.0: with a project id, the branch is opened or closed to that project (the doors), not to the public. */
+  readonly projectId?: string;
   /** Whether the card may be indexed and shared; off by default. */
   readonly sharing?: boolean;
 }
@@ -287,6 +289,8 @@ export interface PrivacyRequest {
 export interface PrivacyResponse {
   readonly meta: ResponseMeta;
   readonly holderId: string;
+  /** Whose view this is: `public`, or `project:<projectId>` (1.9.0). */
+  readonly grantee?: string;
   readonly privacy: Readonly<Record<BranchId, BranchPrivacy>>;
   readonly sharing: boolean;
 }
@@ -545,7 +549,9 @@ export type ApiErrorCode =
   | 'forbidden_role'
   | 'list_too_large'
   | 'quota_exceeded'
-  | 'list_not_ready';
+  | 'list_not_ready'
+  | 'campaign_closed'
+  | 'campaign_full';
 
 // ─── the cleanup RPC relay (1.2.0) ──────────────────────────────────────────
 

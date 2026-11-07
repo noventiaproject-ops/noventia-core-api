@@ -9,6 +9,7 @@
  * app bundle or a web page.
  */
 
+import type { DoorCheckRequest, DoorCheckResponse, DoorsResponse, JoinCampaignRequest, JoinCampaignResponse, PublicCampaignsResponse } from './doors.js';
 import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, LinkWalletRequest, LinkWalletResponse, PassportRequest, PassportResponse, PrivacyRequest, PrivacyResponse, PublicCardResponse, UnlinkWalletRequest, UnlinkWalletResponse, RpcRequest, RpcResponse, RulesResponse, TokenCheckResponse, WalletCheckResponse, YourAirdropsRequest, YourAirdropsResponse } from './types.js';
 
 export type CoreClientOptions = {
@@ -100,6 +101,14 @@ export function createCoreClient(options: CoreClientOptions) {
     setPrivacy: (request: PrivacyRequest) => call<PrivacyResponse>('POST', '/v1/passport/privacy', request, true),
     /** GET /v1/passport/card/{noventiaId} (1.8.0): the public card, no key. */
     publicCard: (noventiaId: string) => call<PublicCardResponse>('GET', `/v1/passport/card/${encodeURIComponent(noventiaId)}`),
+    /** GET /v1/doors (1.9.0): the doors with their stage, and every open campaign. No key. */
+    doors: () => call<DoorsResponse>('GET', '/v1/doors'),
+    /** GET /v1/projects/public/{slug}/campaigns (1.9.0): one project's open campaigns. No key. */
+    publicCampaigns: (slug: string) => call<PublicCampaignsResponse>('GET', `/v1/projects/public/${encodeURIComponent(slug)}/campaigns`),
+    /** POST /v1/passport/doors/eligibility (1.9.0): the holder's own answer to a door's question, with the levels. Needs the app's key. */
+    doorCheck: (request: DoorCheckRequest) => call<DoorCheckResponse>('POST', '/v1/passport/doors/eligibility', request, true),
+    /** POST /v1/passport/doors/join (1.9.0): the holder joins a campaign; the answer is kept as the entry. Needs the app's key. */
+    joinCampaign: (request: JoinCampaignRequest) => call<JoinCampaignResponse>('POST', '/v1/passport/doors/join', request, true),
   };
 }
 
