@@ -520,6 +520,13 @@ export interface TokenCheckResponse {
   readonly creator: string | null;
   readonly creatorCoverage: Coverage | null;
   readonly creatorCard: CreatorCard | null;
+  /**
+   * How far the creator's history was read (1.12.0): `checked` with `reason` the coverage limit
+   * (`large_wallet` past the creator cap, `request_budget` while the rest is read, `daily_cap`, or null),
+   * or `not_checked` with `reason: "listed_asset"` on a listed asset's own mint, where no creator history
+   * is read at all. Absent when no creator could be proven.
+   */
+  readonly creatorRead?: CheckStatus;
   /** This launch: creation, liquidity removed, first day sales and moves. */
   readonly launch: readonly FactView[];
   readonly warnings: readonly Warning[];
