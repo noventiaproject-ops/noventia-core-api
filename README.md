@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.20.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.21.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.21.0:** the owner's private stats dashboard, the data side (`metrics.ts`): `POST /v1/metrics/ingest` (the app key or a bot key; `MetricsIngestRequest`, counters from `METRIC_COUNTERS` under the key's own prefix, the day's running total, sending again replaces it) and `GET /v1/owner/metrics?from=&to=` (owner key; `OwnerMetricsResponse`: every series as daily points, the latency per route, the plan limits). Daily aggregates only: no wallet, no Noventia ID, no email. No field removed.
 * **1.20.0:** the projects cabinet's open points: `GET /v1/projects/{id}/distributions/{distributionId}`; `DistributionView.token` (symbol and decimals, read once at creation); `CampaignPublicView.closedAt`; `report_not_ready` (409, with `details.day`) instead of `list_not_ready` on a report; every create or join refusal names its field in `error.details.field`; a distribution's linked list must be done (`list_not_ready`, `details.field: listId`). CORS allows DELETE. No field removed.
 * **1.19.0:** the app's campaign screen (`doors.ts`): `holderCampaigns(request)` (`POST /v1/passport/doors/campaigns`, app key): every open campaign and every campaign the holder joined, closed ones included, each with the holder's own eligibility and entry; `CampaignPublicView.projectWords` (the project's own words, plain text; `CreateCampaignRequest.description` and `reward`); `JoinCampaignRequest.payoutWallet` (one of the holder's linked wallets); `HolderEntryView`. The project's `CampaignEntryView` names an `entrant` pseudonym and the `payoutWallet` instead of the Noventia ID: the contract's one removal (`holderId`), for the person's privacy (owner, 8 November 2026). `error.details.field` names the field a create or a join refused.
 * **1.18.0:** several wallets per passport, for the app: `POST /v1/passport/links/keep` (`KeepLinkRequest`, app key) carries over a link the app kept before the core did, proof `app-record`; `LinkWalletRequest.proofKind: "sign-in"` accepts the app's own Sign In With Solana message as the proof for the holder the app names; `MAX_LINKED_WALLETS` (10) exported. One wallet belongs to one holder: 409 `already_linked` while another Noventia ID holds it. No field removed.

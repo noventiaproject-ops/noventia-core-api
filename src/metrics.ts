@@ -1,0 +1,133 @@
+/**
+ * The owner's private stats dashboard, the data side (1.21.0, owner 8 November 2026). Daily
+ * aggregates only: no wallet address, no Noventia ID, no email is ever stored or answered.
+ *
+ * Three ways in: the core counts its own calls; the app and the bots report their own daily counts
+ * through `POST /v1/metrics/ingest` with their keys, from the fixed list below (anything else is
+ * refused); the fee wallet's daily totals are read on chain. One way out: `GET /v1/owner/metrics`
+ * with the owner's key.
+ */
+import type { ResponseMeta } from './types.js';
+
+/**
+ * The counters the app and the bots may report, each the caller's own running total for the day
+ * (sending it again replaces the day's value). The app's key reports `app.*`, the Telegram bot's
+ * key `telegram.*`, the Discord bot's key `discord.*`; a counter outside the key's prefix is refused.
+ */
+export const METRIC_COUNTERS = [
+  'app.opens',
+  'app.sign_ins',
+  'app.passport_views',
+  'app.card_shares',
+  'app.links_added',
+  'app.swap_quotes',
+  'app.swaps_sent',
+  'app.reclaims_sent',
+  'app.campaign_views',
+  'app.campaign_joins',
+  'app.errors',
+  'telegram.checks',
+  'telegram.commands',
+  'telegram.active_users',
+  'telegram.alerts_sent',
+  'telegram.links_confirmed',
+  'telegram.errors',
+  'discord.checks',
+  'discord.commands',
+  'discord.active_users',
+  'discord.roles_given',
+  'discord.links_confirmed',
+  'discord.errors',
+] as const;
+export type MetricCounter = (typeof METRIC_COUNTERS)[number];
+
+/**
+ * The series the core writes itself. `key` is the second dimension: the caller (`app`,
+ * `telegram-bot`, `discord-bot`, `owner`, `public` for calls without a key, `system` for the core's
+ * own), a route, a token (`SOL`, `WSOL`, `USDC`, `USDT`), a relay limit, or `all`.
+ *
+ * - `token_checks`, `token_copies` (a copy of a listed asset flagged), `passports_read`: per caller.
+ * - `mints_unique`: distinct mints checked that day.
+ * - `holders_active_day`, `holders_active_week`: holders whose passport was read for the first time
+ *   that day, or that week (sum the week's days for the weekly number).
+ * - `holders_linked`, `wallets_linked`, `pioneers_taken`: the state at the end of the day.
+ * - `project_sign_ins`, `lists_checked`, `wallets_checked`, `farm_clusters`, `reports_measured`,
+ *   `campaigns_created`, `campaign_entries`: Noventia for Projects.
+ * - `helius_credits` per caller, against `limits.heliusCreditsPerDay`; `relay_refusals` per limit
+ *   (`address_minute`, `address_day`, `wallet_minute`, `wallet_day`).
+ * - `requests`, `errors_4xx`, `errors_5xx` per route; `latency_ms` per `route|bucket` (bucket = the
+ *   upper bound in ms: le25 … le6400, inf), from which `latency` below is computed.
+ * - `fees` per token: what the fee wallet received that day, in raw units (SOL and WSOL 9 decimals,
+ *   USDC and USDT 6).
+ */
+export const METRIC_SERIES = [
+  'token_checks',
+  'token_copies',
+  'mints_unique',
+  'passports_read',
+  'holders_active_day',
+  'holders_active_week',
+  'holders_linked',
+  'wallets_linked',
+  'pioneers_taken',
+  'project_sign_ins',
+  'lists_checked',
+  'wallets_checked',
+  'farm_clusters',
+  'reports_measured',
+  'campaigns_created',
+  'campaign_entries',
+  'helius_credits',
+  'relay_refusals',
+  'requests',
+  'errors_4xx',
+  'errors_5xx',
+  'latency_ms',
+  'fees',
+] as const;
+export type MetricSeries = (typeof METRIC_SERIES)[number];
+
+/** POST /v1/metrics/ingest (the app key or a bot key). */
+export interface MetricsIngestRequest {
+  /** UTC day `YYYY-MM-DD`; today when absent; at most 7 days back, never ahead. */
+  readonly day?: string;
+  /** The caller's running totals for the day: whole numbers from 0. */
+  readonly counters: Readonly<Partial<Record<MetricCounter, number>>>;
+}
+
+export interface MetricsIngestResponse {
+  readonly meta: ResponseMeta;
+  readonly day: string;
+  readonly accepted: readonly MetricCounter[];
+}
+
+export interface MetricPoint {
+  /** UTC day `YYYY-MM-DD`. */
+  readonly day: string;
+  readonly key: string;
+  readonly value: number;
+}
+
+/** Latency of one route on one day, from the bucket counts: the bucket's upper bound where half, and 95 %, of the requests fall. */
+export interface RouteLatency {
+  readonly day: string;
+  readonly route: string;
+  readonly requests: number;
+  readonly p50Ms: number;
+  readonly p95Ms: number;
+}
+
+/** GET /v1/owner/metrics?from=&to= (owner key): every series for the days asked, in one answer. */
+export interface OwnerMetricsResponse {
+  readonly meta: ResponseMeta;
+  readonly from: string;
+  readonly to: string;
+  readonly limits: {
+    readonly heliusCreditsPerDay: number;
+    readonly heliusCreditsPerMonth: number | null;
+    readonly relayCallsPerWalletPerDay: number;
+  };
+  /** Every core series and every reported counter that has a value in the range, by name. */
+  readonly series: Readonly<Record<string, readonly MetricPoint[]>>;
+  readonly latency: readonly RouteLatency[];
+}
