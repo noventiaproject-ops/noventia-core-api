@@ -12,6 +12,7 @@
 import type { DoorCheckRequest, DoorCheckResponse, DoorsResponse, JoinCampaignRequest, JoinCampaignResponse, PublicCampaignsResponse } from './doors.js';
 import type { TokenSearchResponse } from './search.js';
 import type { HallResponse, KeepPioneerRequest, KeepPioneerResponse, PioneersResponse, RetirePioneerRequest, RetirePioneerResponse } from './pioneers.js';
+import type { ConfirmLinkRequest, ConfirmLinkResponse, LinkAlertsRequest, LinkAlertsResponse, LinkChannel, LinkCodeRequest, LinkCodeResponse, LinkEventsResponse, LinksResponse, PioneerChangesResponse, UnlinkRequest, UnlinkResponse } from './links.js';
 import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, LinkWalletRequest, LinkWalletResponse, PassportRequest, PassportResponse, PrivacyRequest, PrivacyResponse, PublicCardResponse, UnlinkWalletRequest, UnlinkWalletResponse, RpcRequest, RpcResponse, RulesResponse, TokenCheckResponse, WalletCheckResponse, YourAirdropsRequest, YourAirdropsResponse } from './types.js';
 
 export type CoreClientOptions = {
@@ -121,6 +122,21 @@ export function createCoreClient(options: CoreClientOptions) {
     pioneerHall: () => call<HallResponse>('GET', '/v1/pioneers/hall', undefined, true),
     /** GET /v1/search/tokens?q= (1.14.0): the tokens the core has checked whose name or ticker matches, and the listed assets that match. No key. */
     searchTokens: (q: string) => call<TokenSearchResponse>('GET', `/v1/search/tokens?q=${encodeURIComponent(q)}`),
+    // Telegram and Discord links (1.16.0). The app's backend holds the app key; each bot holds its own key.
+    /** POST /v1/links/codes (app key): a one-time code for the person and channel. */
+    linkCode: (body: LinkCodeRequest) => call<LinkCodeResponse>('POST', '/v1/links/codes', body, true),
+    /** POST /v1/links/confirm (the bot's key): the code the person gave the bot, and the bot's id of the person. */
+    confirmLink: (body: ConfirmLinkRequest) => call<ConfirmLinkResponse>('POST', '/v1/links/confirm', body, true),
+    /** POST /v1/links/unlink (app key or the bot's key). */
+    unlink: (body: UnlinkRequest) => call<UnlinkResponse>('POST', '/v1/links/unlink', body, true),
+    /** GET /v1/links?noventiaId= (app key): the account's links, without external ids. */
+    links: (noventiaId: string) => call<LinksResponse>('GET', `/v1/links?noventiaId=${encodeURIComponent(noventiaId)}`, undefined, true),
+    /** POST /v1/links/alerts (app key): the kinds that reach a link. */
+    setLinkAlerts: (body: LinkAlertsRequest) => call<LinkAlertsResponse>('POST', '/v1/links/alerts', body, true),
+    /** GET /v1/links/events (the bot's key): the channel's feed after a cursor, oldest first. */
+    linkEvents: (channel: LinkChannel, after?: string) => call<LinkEventsResponse>('GET', `/v1/links/events?channel=${channel}${after === undefined ? '' : `&after=${encodeURIComponent(after)}`}`, undefined, true),
+    /** GET /v1/links/pioneers (the Discord bot's key): Pioneer changes of the linked accounts after a cursor. */
+    linkPioneers: (after?: string) => call<PioneerChangesResponse>('GET', `/v1/links/pioneers${after === undefined ? '' : `?after=${encodeURIComponent(after)}`}`, undefined, true),
   };
 }
 

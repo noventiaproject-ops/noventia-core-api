@@ -587,6 +587,11 @@ export type ApiErrorCode =
   | 'origin_not_allowed'
   /** 1.2.0, the relay (502): the call was forwarded and the RPC did not answer. A sent transaction may still have reached the network: check its signature status, never send it again. */
   | 'upstream_failed'
+  /** 1.16.0, Telegram and Discord links: see LinkErrorCode in links.ts. */
+  | 'code_expired'
+  | 'code_used'
+  | 'wrong_channel'
+  | 'already_linked'
   /** 1.4.0, Noventia for Projects: see ProjectsErrorCode in projects.ts. */
   | 'not_a_member'
   | 'not_authority'

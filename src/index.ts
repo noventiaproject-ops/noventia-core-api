@@ -10,3 +10,4 @@ export * from './projects';
 export * from './doors';
 export * from './pioneers';
 export * from './search';
+export * from './links';
