@@ -51,6 +51,16 @@ export interface DoorView {
 
 export type CampaignStatus = 'open' | 'closed';
 
+/**
+ * The project's own words on a campaign (1.19.0): plain text as the project wrote it, markup
+ * stripped, `description` up to 500 characters, `reward` up to 200. The core does not check them;
+ * a screen says they are the project's words.
+ */
+export interface ProjectWords {
+  readonly description?: string;
+  readonly reward?: string;
+}
+
 /** A campaign as anyone sees it: what it asks, how many joined, never who. */
 export interface CampaignPublicView {
   readonly campaignId: string;
@@ -66,6 +76,8 @@ export interface CampaignPublicView {
   /** ISO 8601, UTC; null when open until closed by the project. */
   readonly closesAt: string | null;
   readonly status: CampaignStatus;
+  /** 1.19.0: the project's own words; absent when the project wrote none. */
+  readonly projectWords?: ProjectWords;
 }
 
 /** The project's own view of its campaign. */
@@ -91,6 +103,9 @@ export interface CreateCampaignRequest {
   readonly mode?: DoorMode;
   readonly places?: number | null;
   readonly closesAt?: string | null;
+  /** 1.19.0: the project's own words, plain text; markup is stripped, `description` is cut at 500 characters and `reward` at 200. */
+  readonly description?: string;
+  readonly reward?: string;
 }
 
 export interface CampaignResponse {
@@ -110,14 +125,26 @@ export interface PublicCampaignsResponse {
 }
 
 /** One holder's entry as the project sees it: the holder id it joined with, the answer, never a fact or a wallet. */
+/**
+ * An entry as the project sees it. 1.19.0 (owner, 8 November 2026): the Noventia ID never reaches a
+ * project; `entrant` is a pseudonym made at the join, one per campaign, so a project cannot follow a
+ * person across campaigns. This is the contract's one removal (`holderId`), for the person's privacy.
+ */
 export interface CampaignEntryView {
-  readonly holderId: string;
+  readonly entrant: string;
+  /** The wallet the holder picked from the linked wallets for the payout. */
+  readonly payoutWallet: string | null;
   readonly status: EligibilityStatus;
-  /** Levels appear only for branches the holder opened to this project. */
+  /** Met or not met per required branch. Levels appear only for branches the holder opened to this project. */
   readonly branches: readonly BranchEligibilityView[];
   /** ISO 8601, UTC. */
   readonly checkedAt: string;
   readonly ruleVersion: number;
+}
+
+/** The holder's own entry (1.19.0): with the Noventia ID, the pseudonym the project sees, and the levels. */
+export interface HolderEntryView extends CampaignEntryView {
+  readonly holderId: string;
 }
 
 /** GET /v1/projects/{projectId}/campaigns/{campaignId}/entries?cursor=&limit= (members). */
@@ -150,12 +177,35 @@ export interface JoinCampaignRequest {
   readonly holderType?: 'person' | 'agent';
   readonly agentId?: string;
   readonly campaignId: string;
+  /** 1.19.0: the wallet the holder picks for the payout, one of the holder's linked wallets. */
+  readonly payoutWallet: string;
 }
 
 export interface JoinCampaignResponse {
   readonly meta: ResponseMeta;
   readonly holderId: string;
   readonly campaign: CampaignPublicView;
-  /** The holder's own view: with the levels. */
-  readonly entry: CampaignEntryView;
+  /** The holder's own view: with the levels and the pseudonym the project sees. */
+  readonly entry: HolderEntryView;
+}
+
+/** POST /v1/passport/doors/campaigns (1.19.0, app key): the app's campaign screen for one holder. */
+export interface HolderCampaignsRequest {
+  readonly noventiaId?: string;
+  readonly holderType?: 'person' | 'agent';
+  readonly agentId?: string;
+}
+
+/** One campaign on the holder's screen: the campaign, the holder's own eligibility (with levels) and the entry when the holder joined. */
+export interface HolderCampaignView {
+  readonly campaign: CampaignPublicView;
+  readonly eligibility: EligibilityView;
+  readonly entry: HolderEntryView | null;
+}
+
+/** Every open campaign, plus every campaign the holder joined, closed ones included; open first, newest first. */
+export interface HolderCampaignsResponse {
+  readonly meta: ResponseMeta;
+  readonly holderId: string;
+  readonly campaigns: readonly HolderCampaignView[];
 }

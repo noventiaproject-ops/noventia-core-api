@@ -9,7 +9,7 @@
  * app bundle or a web page.
  */
 
-import type { DoorCheckRequest, DoorCheckResponse, DoorsResponse, JoinCampaignRequest, JoinCampaignResponse, PublicCampaignsResponse } from './doors.js';
+import type { DoorCheckRequest, DoorCheckResponse, DoorsResponse, HolderCampaignsRequest, HolderCampaignsResponse, JoinCampaignRequest, JoinCampaignResponse, PublicCampaignsResponse } from './doors.js';
 import type { ReviewRequest, ReviewResponse } from './projects.js';
 import type { TokenSearchResponse } from './search.js';
 import type { HallResponse, KeepPioneerRequest, KeepPioneerResponse, PioneersResponse, RetirePioneerRequest, RetirePioneerResponse } from './pioneers.js';
@@ -119,6 +119,8 @@ export function createCoreClient(options: CoreClientOptions) {
     doorCheck: (request: DoorCheckRequest) => call<DoorCheckResponse>('POST', '/v1/passport/doors/eligibility', request, true),
     /** POST /v1/passport/doors/join (1.9.0): the holder joins a campaign; the answer is kept as the entry. Needs the app's key. */
     joinCampaign: (request: JoinCampaignRequest) => call<JoinCampaignResponse>('POST', '/v1/passport/doors/join', request, true),
+    /** POST /v1/passport/doors/campaigns (1.19.0, app key): the holder's campaign screen: every open campaign and every campaign the holder joined. */
+    holderCampaigns: (request: HolderCampaignsRequest) => call<HolderCampaignsResponse>('POST', '/v1/passport/doors/campaigns', request, true),
     /** GET /v1/pioneers (1.10.0): the places, the taken count and the rule. No key; the sites read it at build time. */
     pioneers: () => call<PioneersResponse>('GET', '/v1/pioneers'),
     /** POST /v1/pioneers/keep (1.10.0): a Pioneer from before the core keeps the number with the Noventia ID. Needs the app's key. */

@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.18.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.19.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.19.0:** the app's campaign screen (`doors.ts`): `holderCampaigns(request)` (`POST /v1/passport/doors/campaigns`, app key): every open campaign and every campaign the holder joined, closed ones included, each with the holder's own eligibility and entry; `CampaignPublicView.projectWords` (the project's own words, plain text; `CreateCampaignRequest.description` and `reward`); `JoinCampaignRequest.payoutWallet` (one of the holder's linked wallets); `HolderEntryView`. The project's `CampaignEntryView` names an `entrant` pseudonym and the `payoutWallet` instead of the Noventia ID: the contract's one removal (`holderId`), for the person's privacy (owner, 8 November 2026). `error.details.field` names the field a create or a join refused.
 * **1.18.0:** several wallets per passport, for the app: `POST /v1/passport/links/keep` (`KeepLinkRequest`, app key) carries over a link the app kept before the core did, proof `app-record`; `LinkWalletRequest.proofKind: "sign-in"` accepts the app's own Sign In With Solana message as the proof for the holder the app names; `MAX_LINKED_WALLETS` (10) exported. One wallet belongs to one holder: 409 `already_linked` while another Noventia ID holds it. No field removed.
 * **1.17.0:** Noventia for Projects sign in for a subject whose authorities are revoked: `ProjectChallengeRequest.kind` with the new `AuthorityKind` values `deployer` (the wallet that signed the token's creation) and `manual_review` (a wallet the team approved); `AuthorityProofView.transaction` and `reviewId`; `requestReview(body)` and `review(reviewId)` (`POST /v1/projects/reviews`, `GET /v1/projects/reviews/{reviewId}`, no key); error codes `review_pending`, `review_declined`, `authority_held_by_wallet`, `authority_held_by_unknown_program`, `not_creator`; `ApiError.error.details` (optional) names the authority and the wallet, holder or creator behind a refusal. No field removed.
 * **1.16.0:** Telegram and Discord links (`links.ts`): `linkCode`, `confirmLink`, `unlink`, `links`, `setLinkAlerts` for the app's backend; `confirmLink`, `unlink`, `linkEvents` and `linkPioneers` for the bots with their own keys (scopes `telegram`, `discord`). Events `claimWindowClosing`, `newCampaign`, `levelReached`, `unlinked`; Pioneer changes for Discord. Error codes `code_expired`, `code_used`, `wrong_channel`, `already_linked`. No field removed.
