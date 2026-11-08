@@ -14,7 +14,7 @@ import type { ReviewRequest, ReviewResponse } from './projects.js';
 import type { TokenSearchResponse } from './search.js';
 import type { HallResponse, KeepPioneerRequest, KeepPioneerResponse, PioneersResponse, RetirePioneerRequest, RetirePioneerResponse } from './pioneers.js';
 import type { ConfirmLinkRequest, ConfirmLinkResponse, LinkAlertsRequest, LinkAlertsResponse, LinkChannel, LinkCodeRequest, LinkCodeResponse, LinkEventsResponse, LinksResponse, PioneerChangesResponse, UnlinkRequest, UnlinkResponse } from './links.js';
-import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, LinkWalletRequest, LinkWalletResponse, PassportRequest, PassportResponse, PrivacyRequest, PrivacyResponse, PublicCardResponse, UnlinkWalletRequest, UnlinkWalletResponse, RpcRequest, RpcResponse, RulesResponse, TokenCheckResponse, WalletCheckResponse, YourAirdropsRequest, YourAirdropsResponse } from './types.js';
+import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, KeepLinkRequest, LinkWalletRequest, LinkWalletResponse, PassportRequest, PassportResponse, PrivacyRequest, PrivacyResponse, PublicCardResponse, UnlinkWalletRequest, UnlinkWalletResponse, RpcRequest, RpcResponse, RulesResponse, TokenCheckResponse, WalletCheckResponse, YourAirdropsRequest, YourAirdropsResponse } from './types.js';
 
 export type CoreClientOptions = {
   /** Without a trailing slash, for example the mock server http://127.0.0.1:8788. */
@@ -99,6 +99,8 @@ export function createCoreClient(options: CoreClientOptions) {
     rules: () => call<RulesResponse>('GET', '/v1/rules'),
     /** POST /v1/passport/links (1.8.0): a wallet the holder linked by signing the link message; the core checks the signature again. Needs the app's key. */
     linkWallet: (request: LinkWalletRequest) => call<LinkWalletResponse>('POST', '/v1/passport/links', request, true),
+    /** POST /v1/passport/links/keep (1.18.0, app key): a link the app kept before the core kept links, carried over once. */
+    keepLink: (request: KeepLinkRequest) => call<LinkWalletResponse>('POST', '/v1/passport/links/keep', request, true),
     /** POST /v1/passport/links/remove (1.8.0). Needs the app's key. */
     unlinkWallet: (request: UnlinkWalletRequest) => call<UnlinkWalletResponse>('POST', '/v1/passport/links/remove', request, true),
     /** POST /v1/passport/privacy (1.8.0): open or close a branch on the public card, or the sharing switch. Needs the app's key. */

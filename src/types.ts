@@ -237,16 +237,43 @@ export interface PassportResponse {
 }
 
 /** POST /v1/passport/links (1.8.0): a wallet the holder linked by signing the link message. The core checks the signature again. App key. */
+/** A passport holds at most this many wallets (1.18.0 exports it; the core refuses the next with `too_many_wallets`). */
+export const MAX_LINKED_WALLETS = 10;
+
+/**
+ * How the wallet proved it is the holder's (1.18.0). `signed-message` (the default): the link
+ * message that names the wallet and the holder. `sign-in`: the app's own Sign In With Solana
+ * message, signed by the wallet when it signed in to the app; the app's backend names the holder.
+ */
+export type LinkProofKind = 'signed-message' | 'sign-in';
+
 export interface LinkWalletRequest {
   readonly noventiaId?: string;
   /** `person` (default, with `noventiaId`) or `agent` (with `agentId`). */
   readonly holderType?: 'person' | 'agent';
   readonly agentId?: string;
   readonly address: string;
-  /** The Sign In With Solana text the wallet signed, as the app built it: it names the wallet and the holder. */
+  /** The Sign In With Solana text the wallet signed: for `signed-message` it names the wallet and the holder; for `sign-in` the wallet alone, from one of the app's hosts. */
   readonly message: string;
   /** Base58 signature of the message by the wallet. */
   readonly signature: string;
+  /** 1.18.0; `signed-message` when absent. */
+  readonly proofKind?: LinkProofKind;
+}
+
+/**
+ * POST /v1/passport/links/keep (1.18.0, app key): a link the app kept before the core kept links,
+ * carried over once by the app's backend. No signature travels; the proof kept is `app-record` with
+ * the time the app made the link. The same rules as a new link: one wallet one holder, at most
+ * MAX_LINKED_WALLETS. Answers `LinkWalletResponse`.
+ */
+export interface KeepLinkRequest {
+  readonly noventiaId?: string;
+  readonly holderType?: 'person' | 'agent';
+  readonly agentId?: string;
+  readonly address: string;
+  /** ISO 8601, UTC: when the app made the link; now when absent. */
+  readonly recordedAt?: string;
 }
 
 export interface LinkWalletResponse {
