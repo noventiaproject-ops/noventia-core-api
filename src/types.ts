@@ -635,6 +635,7 @@ export type ApiErrorCode =
   | 'not_creator'
   | 'quota_exceeded'
   | 'list_not_ready'
+  | 'report_not_ready'
   | 'campaign_closed'
   | 'campaign_full';
 

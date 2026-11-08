@@ -78,6 +78,8 @@ export interface CampaignPublicView {
   readonly status: CampaignStatus;
   /** 1.19.0: the project's own words; absent when the project wrote none. */
   readonly projectWords?: ProjectWords;
+  /** 1.20.0: ISO 8601, UTC, when the project closed it; null while open. */
+  readonly closedAt?: string | null;
 }
 
 /** The project's own view of its campaign. */

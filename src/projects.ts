@@ -440,10 +440,12 @@ export interface DistributionView {
   readonly startsAt: string;
   /** The list check this distribution came from, if any. */
   readonly listId: string | null;
+  /** 1.20.0: the token's symbol and decimals, read once when the distribution was made; null when the read gave none. */
+  readonly token: { readonly symbol: string | null; readonly decimals: number | null };
   readonly checkpoints: readonly { readonly day: ReportDay; readonly at: string; readonly status: 'not_reached' | 'measuring' | 'ready' }[];
 }
 
-/** GET /v1/projects/{projectId}/distributions. */
+/** GET /v1/projects/{projectId}/distributions; GET /v1/projects/{projectId}/distributions/{distributionId} (1.20.0) answers `DistributionResponse`. */
 export interface DistributionsResponse {
   readonly meta: ResponseMeta;
   readonly distributions: readonly DistributionView[];
@@ -613,4 +615,6 @@ export type ProjectsErrorCode =
   | 'forbidden_role'
   | 'list_too_large'
   | 'quota_exceeded'
-  | 'list_not_ready';
+  | 'list_not_ready'
+  /** 1.20.0 (409): a distribution report's day is not reached or still being measured. */
+  | 'report_not_ready';
