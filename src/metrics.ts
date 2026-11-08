@@ -17,6 +17,8 @@ import type { ResponseMeta } from './types.js';
 export const METRIC_COUNTERS = [
   'app.opens',
   'app.sign_ins',
+  /** 1.21.1: accounts created that UTC day. */
+  'app.sign_ups',
   'app.passport_views',
   'app.card_shares',
   'app.links_added',
