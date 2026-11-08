@@ -29,14 +29,28 @@ export interface ProjectSubject {
  * of the mint's Metaplex metadata (works after the mint authority is revoked). `program_upgrade_authority`:
  * the upgrade authority in the program's ProgramData account.
  */
-export type AuthorityKind = 'mint_authority' | 'metadata_update_authority' | 'program_upgrade_authority';
+export type AuthorityKind = 'mint_authority' | 'freeze_authority' | 'metadata_update_authority' | 'program_upgrade_authority' | 'deployer' | 'manual_review';
+/**
+ * 1.17.0. `freeze_authority`: the mint's freeze authority, read with the mint authority. For a
+ * subject whose authorities are revoked or held by a known launchpad: `deployer` is the wallet that
+ * signed the token's creation (the token check's proven creator), `manual_review` a wallet the
+ * Noventia team approved through a review request (`POST /v1/projects/reviews`). Both sign the same
+ * challenge. While any authority is held by a wallet, only that wallet can sign in; an authority
+ * held by a program the core does not know as a launchpad goes to the team's review.
+ */
+export const AUTHORITY_KINDS: readonly AuthorityKind[] = ['mint_authority', 'freeze_authority', 'metadata_update_authority', 'program_upgrade_authority', 'deployer', 'manual_review'];
 
 /** The account read that shows the signer holds the authority, at the slot it was read. */
 export interface AuthorityProofView {
   readonly kind: AuthorityKind;
   readonly subject: ProjectSubject;
   readonly authority: string;
+  /** The subject's account at the slot read; for `deployer` and `manual_review` the account the subject lives in. */
   readonly proofs: NonEmptyArray<SolanaAccountProof>;
+  /** `deployer` (1.17.0): the transaction that created the token, signed by this wallet. */
+  readonly transaction?: string;
+  /** `manual_review` (1.17.0): the approved review request. */
+  readonly reviewId?: string;
 }
 
 export type ProjectRole = 'owner' | 'admin' | 'viewer';
@@ -63,6 +77,12 @@ export interface ProjectView {
 export interface ProjectChallengeRequest {
   readonly authority: string;
   readonly subject: ProjectSubject;
+  /**
+   * 1.17.0: `deployer` or `manual_review` when the subject's authorities are revoked. Without it the
+   * core checks the three on-chain authorities; with it, the on-chain check still comes first and the
+   * named kind is the fallback.
+   */
+  readonly kind?: AuthorityKind;
 }
 
 /**
@@ -536,10 +556,57 @@ export const BADGE_SIZE = { width: 240, height: 40 } as const;
  * `list_not_ready` (409): the report or the file asked for before the list is done. `not_a_member`
  * (403): a Firebase sign in whose email is neither a member nor invited.
  */
+// ─── review requests (1.17.0) ──────────────────────────────────────────────
+
+export type ReviewStatus = 'received' | 'approved' | 'declined';
+
+/**
+ * POST /v1/projects/reviews (no session): a manual check by the Noventia team for a subject whose
+ * authorities are all revoked. `wallet` is the address that signs in with kind `manual_review` once
+ * the request is approved; `email` is where the team answers; `statement` says who asks and why the
+ * authorities are revoked (20 to 2000 characters). One open request per subject and wallet: sending
+ * it again returns the same request.
+ */
+export interface ReviewRequest {
+  readonly subject: ProjectSubject;
+  readonly wallet: string;
+  readonly email: string;
+  readonly statement: string;
+}
+
+/** The request as the API shows it: the status, never the email or the statement. */
+export interface ReviewView {
+  readonly reviewId: string;
+  readonly subject: ProjectSubject;
+  readonly wallet: string;
+  readonly status: ReviewStatus;
+  /** ISO 8601, UTC. */
+  readonly createdAt: string;
+  readonly decidedAt: string | null;
+}
+
+/** The answer of POST /v1/projects/reviews and GET /v1/projects/reviews/{reviewId}. */
+export interface ReviewResponse {
+  readonly meta: ResponseMeta;
+  readonly review: ReviewView;
+}
+
 export type ProjectsErrorCode =
   | 'not_a_member'
   | 'not_authority'
   | 'no_authority'
+  /** 1.17.0 (403): the wallet's review request for the subject is received but not decided, or was declined. */
+  | 'review_pending'
+  | 'review_declined'
+  /**
+   * 1.17.0 (403), the fallbacks: an authority of the subject is held by a wallet, which alone can sign in
+   * (`details.authority`, `details.wallet`); by a program address the core does not know as a launchpad
+   * (`details.authority`, `details.holder`); or the signer is not the token's proven creator
+   * (`details.creator` when one is proven).
+   */
+  | 'authority_held_by_wallet'
+  | 'authority_held_by_unknown_program'
+  | 'not_creator'
   | 'challenge_expired'
   | 'invalid_signature'
   | 'session_expired'

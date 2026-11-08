@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.16.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.17.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.17.0:** Noventia for Projects sign in for a subject whose authorities are revoked: `ProjectChallengeRequest.kind` with the new `AuthorityKind` values `deployer` (the wallet that signed the token's creation) and `manual_review` (a wallet the team approved); `AuthorityProofView.transaction` and `reviewId`; `requestReview(body)` and `review(reviewId)` (`POST /v1/projects/reviews`, `GET /v1/projects/reviews/{reviewId}`, no key); error codes `review_pending`, `review_declined`, `authority_held_by_wallet`, `authority_held_by_unknown_program`, `not_creator`; `ApiError.error.details` (optional) names the authority and the wallet, holder or creator behind a refusal. No field removed.
 * **1.16.0:** Telegram and Discord links (`links.ts`): `linkCode`, `confirmLink`, `unlink`, `links`, `setLinkAlerts` for the app's backend; `confirmLink`, `unlink`, `linkEvents` and `linkPioneers` for the bots with their own keys (scopes `telegram`, `discord`). Events `claimWindowClosing`, `newCampaign`, `levelReached`, `unlinked`; Pioneer changes for Discord. Error codes `code_expired`, `code_used`, `wrong_channel`, `already_linked`. No field removed.
 * **1.15.0:** `TokenCheckResponse.creatorShare`: the creator's share of the supply at launch and at 1 hour, 24 hours, 7 days, 30 days and now, from the creator's own movements, each checkpoint with its transactions; `not_reached` and `unknown` checkpoints said as such; null on a listed asset's own mint. No warning comes from it. No field removed.
 * **1.14.0:** `searchTokens(q)` (GET /v1/search/tokens?q=, no key): the tokens the core has checked whose name or ticker matches, each with its mint, escaped name and ticker, when the core first saw it and last checked it, and whether it is a listed asset or a copy; the listed assets that match, checked or not. `scope: "checked_by_noventia"`, never all tokens, no score. No field removed.

@@ -601,6 +601,11 @@ export type ApiErrorCode =
   | 'session_expired'
   | 'forbidden_role'
   | 'list_too_large'
+  | 'review_pending'
+  | 'review_declined'
+  | 'authority_held_by_wallet'
+  | 'authority_held_by_unknown_program'
+  | 'not_creator'
   | 'quota_exceeded'
   | 'list_not_ready'
   | 'campaign_closed'
@@ -636,7 +641,12 @@ export interface RpcResponse {
 }
 
 export interface ApiError {
-  readonly error: { readonly code: ApiErrorCode; readonly message: string };
+  readonly error: {
+    readonly code: ApiErrorCode;
+    readonly message: string;
+    /** 1.17.0: named facts behind the refusal, for a screen to show (which authority, which wallet, which field). Present on some codes only. */
+    readonly details?: Readonly<Record<string, string>>;
+  };
 }
 
 /**

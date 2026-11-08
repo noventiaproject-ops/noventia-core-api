@@ -10,6 +10,7 @@
  */
 
 import type { DoorCheckRequest, DoorCheckResponse, DoorsResponse, JoinCampaignRequest, JoinCampaignResponse, PublicCampaignsResponse } from './doors.js';
+import type { ReviewRequest, ReviewResponse } from './projects.js';
 import type { TokenSearchResponse } from './search.js';
 import type { HallResponse, KeepPioneerRequest, KeepPioneerResponse, PioneersResponse, RetirePioneerRequest, RetirePioneerResponse } from './pioneers.js';
 import type { ConfirmLinkRequest, ConfirmLinkResponse, LinkAlertsRequest, LinkAlertsResponse, LinkChannel, LinkCodeRequest, LinkCodeResponse, LinkEventsResponse, LinksResponse, PioneerChangesResponse, UnlinkRequest, UnlinkResponse } from './links.js';
@@ -108,6 +109,10 @@ export function createCoreClient(options: CoreClientOptions) {
     doors: () => call<DoorsResponse>('GET', '/v1/doors'),
     /** GET /v1/projects/public/{slug}/campaigns (1.9.0): one project's open campaigns. No key. */
     publicCampaigns: (slug: string) => call<PublicCampaignsResponse>('GET', `/v1/projects/public/${encodeURIComponent(slug)}/campaigns`),
+    /** POST /v1/projects/reviews (1.17.0): a manual check for a subject whose authorities are revoked. No key. */
+    requestReview: (body: ReviewRequest) => call<ReviewResponse>('POST', '/v1/projects/reviews', body),
+    /** GET /v1/projects/reviews/{reviewId} (1.17.0): the status of a review request. No key. */
+    review: (reviewId: string) => call<ReviewResponse>('GET', `/v1/projects/reviews/${encodeURIComponent(reviewId)}`),
     /** POST /v1/passport/doors/eligibility (1.9.0): the holder's own answer to a door's question, with the levels. Needs the app's key. */
     doorCheck: (request: DoorCheckRequest) => call<DoorCheckResponse>('POST', '/v1/passport/doors/eligibility', request, true),
     /** POST /v1/passport/doors/join (1.9.0): the holder joins a campaign; the answer is kept as the entry. Needs the app's key. */
