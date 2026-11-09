@@ -12,3 +12,4 @@ export * from './pioneers';
 export * from './search';
 export * from './links';
 export * from './metrics';
+export * from './graph';

@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.21.2"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.22.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.22.0:** the funding graph (`graph.ts`): `GET /v1/projects/{id}/lists/{listId}/graph` (the project's session; `ListFundingGraphResponse`: nodes with roles `source`, `funded`, `independent`, `infrastructure`, edges with the amount as `AmountView`, the transaction and the block time, the known event times) and `GET /v1/graph/token/{mint}` (no key; `TokenFundingGraphResponse`: the largest holders' first fundings as aggregates with short addresses only, no transaction). No field removed.
 * **1.21.2:** the one-signal cluster label is evidence, not a verdict: `ListLabel.evidence` and `ClusterView.evidence` (`EvidenceLevel`: `some` today), `LABEL_TEXT.farm_cluster` reads "Funded by one source: some evidence", the exclusions file gains an `evidence` column. No field removed.
 * **1.21.1:** `app.sign_ups` (accounts created that UTC day) added to `METRIC_COUNTERS` for the app's backend. No field removed.
 * **1.21.0:** the owner's private stats dashboard, the data side (`metrics.ts`): `POST /v1/metrics/ingest` (the app key or a bot key; `MetricsIngestRequest`, counters from `METRIC_COUNTERS` under the key's own prefix, the day's running total, sending again replaces it) and `GET /v1/owner/metrics?from=&to=` (owner key; `OwnerMetricsResponse`: every series as daily points, the latency per route, the plan limits). Daily aggregates only: no wallet, no Noventia ID, no email. No field removed.
