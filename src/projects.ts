@@ -202,7 +202,8 @@ export type ListLabelCode = (typeof LIST_LABELS)[number];
 
 /** The fixed words each label is shown with. */
 export const LABEL_TEXT: Readonly<Record<ListLabelCode, string>> = {
-  farm_cluster: 'Farm cluster',
+  /** 1.21.2 (owner, 9 November 2026): one signal is evidence, never a verdict; the label says what was seen. */
+  farm_cluster: 'Funded by one source: some evidence',
   looks_automated: 'Looks automated',
   fresh: 'Fresh wallet',
   sold_past_airdrops: 'Sold past airdrops',
@@ -210,6 +211,13 @@ export const LABEL_TEXT: Readonly<Record<ListLabelCode, string>> = {
   clean: 'Clean',
   not_read: 'Not read',
 };
+
+/**
+ * How much stands behind a cluster label (1.21.2): `some` when one signal fired, `strong` when at least two
+ * independent signals agree. A category built from which signals fired, never a number. Until the
+ * two-signal rule ships every `farm_cluster` label is `some`.
+ */
+export type EvidenceLevel = 'some' | 'strong';
 
 /** `case_kept` and `case_released` (1.7.0): the decision on the case behind a freeze. */
 export type AppealStatus = 'open' | 'in_review' | 'label_kept' | 'label_lifted' | 'case_kept' | 'case_released';
@@ -233,6 +241,8 @@ export interface ListLabel {
   readonly facts: NonEmptyArray<FactView>;
   /** `farm_cluster` only. */
   readonly clusterId?: string;
+  /** `farm_cluster` only (1.21.2): how much stands behind the label. */
+  readonly evidence?: EvidenceLevel;
   /** `sold_past_airdrops` and `moved_out_past_airdrops`: the measured programmes (ids from the public reports). */
   readonly programmes?: readonly string[];
   /** `looks_automated` only: the same findings as the wallet check. */
@@ -348,6 +358,8 @@ export interface ClusterView {
   readonly members: readonly ClusterMember[];
   /** Members outside this list: how many, and their funding transactions without addresses. */
   readonly offList: { readonly count: number; readonly fundings: readonly SolanaTxProof[] };
+  /** 1.21.2: how much stands behind the cluster; `some` for one signal. */
+  readonly evidence?: EvidenceLevel;
   readonly window: { readonly from: string; readonly to: string };
   readonly ruleId: string;
   readonly ruleVersion: number;
@@ -363,10 +375,12 @@ export interface ClustersResponse {
 
 /**
  * GET /v1/projects/{projectId}/lists/{listId}/exclusions.csv: text/csv, UTF-8, header
- * `address,labels,cluster_id,proof`. `labels` joined by `;`, `proof` one explorer link. Holds the
- * wallets labeled farm_cluster or looks_automated, without labels lifted on appeal.
+ * `address,labels,cluster_id,proof,evidence`. `labels` joined by `;`, `proof` one explorer link,
+ * `evidence` (1.21.2) `some` or `strong` for a cluster label and empty otherwise. Holds the wallets
+ * labeled farm_cluster or looks_automated, without labels lifted on appeal: a line is what the
+ * check saw, and the project decides.
  */
-export const EXCLUSIONS_CSV_HEADER = 'address,labels,cluster_id,proof';
+export const EXCLUSIONS_CSV_HEADER = 'address,labels,cluster_id,proof,evidence';
 
 // ─── appeals ────────────────────────────────────────────────────────────────
 
