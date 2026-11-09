@@ -14,6 +14,7 @@
  *   as the token check, the passport freeze and the public reports.
  */
 
+import type { AmountView } from './graph.js';
 import type { AutomationFlag, Coverage, FactView, NonEmptyArray, Proof, ResponseMeta, SolanaAccountProof, SolanaTxProof, TokenCheckResponse } from './types.js';
 
 // ─── project, sign in, sessions ─────────────────────────────────────────────
@@ -488,6 +489,7 @@ export interface ReportMetric {
   readonly id: string;
   readonly label: string;
   readonly value: number;
+  /** `tokens`: whole tokens, the decimals applied; the token is `LiveReportResponse.token`. */
   readonly unit: 'wallets' | '% of recipients' | 'tokens';
   readonly definition: string;
   readonly rangeLow: number | null;
@@ -505,9 +507,14 @@ export interface LiveReportResponse {
   readonly population: {
     readonly recipients: number;
     readonly claims: number;
+    /** Whole tokens, the decimals applied (1.22.1; a report stored before carried the smallest unit and is converted when read). */
     readonly claimed: number;
     readonly unclaimed: number | null;
   };
+  /** 1.22.1: the token the amounts are in. Absent only when the token's decimals could not be read. */
+  readonly token?: { readonly symbol: string | null; readonly decimals: number };
+  /** 1.22.1: the same amounts exactly, with the unit: raw, decimals, symbol and the value with decimals applied. */
+  readonly amounts?: { readonly claimed: AmountView; readonly unclaimed: AmountView | null };
   readonly sample: { readonly size: number; readonly seed: string; readonly confidence: 0.95 } | null;
   readonly metrics: readonly ReportMetric[];
   /** What this report does not measure, in plain words. */
