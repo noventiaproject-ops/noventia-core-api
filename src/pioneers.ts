@@ -38,7 +38,8 @@ export interface PioneersResponse {
   /** Numbers given, retired ones included: a number is never given twice. */
   readonly taken: number;
   readonly left: number;
-  readonly rule: { readonly ruleId: string; readonly version: number; readonly text: readonly string[] };
+  /** `textCodes` and `params` since 1.28.2: the stable code of each sentence of `text`, in the same order, and the values for their places. */
+  readonly rule: { readonly ruleId: string; readonly version: number; readonly text: readonly string[]; readonly textCodes?: readonly string[]; readonly params?: Readonly<Record<string, string | number>> };
 }
 
 /** POST /v1/pioneers/keep (app key): a Pioneer from before the core keeps the number with the Noventia ID. */

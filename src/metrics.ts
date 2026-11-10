@@ -162,9 +162,10 @@ export interface OwnerTotalsResponse {
  * anything else that came in, a top-up for one; it is neither.
  */
 export interface WalletReceipts {
-  readonly swaps: { readonly transactions: number; readonly WSOL: string; readonly USDC: string };
+  /** `USDT` since 1.28.2. */
+  readonly swaps: { readonly transactions: number; readonly WSOL: string; readonly USDC: string; readonly USDT?: string };
   readonly reclaims: { readonly transactions: number; readonly SOL: string };
-  readonly other: { readonly transactions: number; readonly SOL: string; readonly WSOL: string; readonly USDC: string };
+  readonly other: { readonly transactions: number; readonly SOL: string; readonly WSOL: string; readonly USDC: string; readonly USDT?: string };
 }
 
 /** One of Noventia's own wallets, read only. */
@@ -178,6 +179,8 @@ export interface OwnerWalletView {
   /** The wallet's associated token account for wrapped SOL: whether it exists, and what it holds in raw units. */
   readonly wsol: { readonly ata: boolean; readonly balance: string };
   readonly usdc: { readonly ata: boolean; readonly balance: string };
+  /** 1.28.2: the USDT account, as the two above (6 decimals). */
+  readonly usdt?: { readonly ata: boolean; readonly balance: string };
   readonly received: { readonly last24h: WalletReceipts; readonly last7d: WalletReceipts };
   /** ISO 8601, UTC: when the balances and the receipts were read. */
   readonly asOf: string;
