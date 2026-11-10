@@ -83,6 +83,12 @@ export interface Coverage {
    */
   readonly limitedBy: 'large_wallet' | 'request_budget' | 'daily_cap' | null;
   readonly backfill: 'none' | 'queued' | 'running';
+  /**
+   * 1.29.0: present while the history waits for the day's credits (`limitedBy: 'daily_cap'`, not complete): the
+   * wallet is in the queue and is read when the day turns. The words to show, with their code: "Reading, check
+   * back later." An answer with this is honest and complete for what was read; it is no error.
+   */
+  readonly reading?: { readonly messageCode: string; readonly message: string };
 }
 
 /** A fact as the API shows it: always with the transactions behind it. */
