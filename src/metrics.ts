@@ -34,12 +34,18 @@ export const METRIC_COUNTERS = [
   'telegram.alerts_sent',
   'telegram.links_confirmed',
   'telegram.errors',
+  /** 1.25.0, a state when the bot reports (read the latest day, never add the days up): private chats the bot can reach. */
+  'telegram.chats',
+  /** 1.25.0, a state: groups with protection on. */
+  'telegram.groups_protected',
   'discord.checks',
   'discord.commands',
   'discord.active_users',
   'discord.roles_given',
   'discord.links_confirmed',
   'discord.errors',
+  /** 1.25.0, a state: servers the bot is in. */
+  'discord.servers',
 ] as const;
 export type MetricCounter = (typeof METRIC_COUNTERS)[number];
 
@@ -117,6 +123,34 @@ export interface RouteLatency {
   readonly requests: number;
   readonly p50Ms: number;
   readonly p95Ms: number;
+}
+
+/** What the fee wallet received over its whole history, in raw units (SOL and WSOL 9 decimals, USDC and USDT 6). */
+export interface FeeHistoryView {
+  /** `checked`: read to the newest transaction. `partial`: the read stopped early (pages or the day's credits); the sums are a lower bound. `not_configured`: no fee wallet is set. */
+  readonly status: 'checked' | 'partial' | 'not_configured';
+  readonly received: { readonly SOL: string; readonly WSOL: string; readonly USDC: string; readonly USDT: string };
+  /** Transactions of the wallet read so far. */
+  readonly transactions: number;
+  /** ISO 8601, UTC: the wallet's first transaction and the newest one read; null when it has none. */
+  readonly from: string | null;
+  readonly to: string | null;
+}
+
+/**
+ * GET /v1/owner/totals (owner key, 1.25.0): counts over the whole history, from the core's own
+ * tables and the fee wallet's history. Nothing here names a person, a wallet or a project.
+ */
+export interface OwnerTotalsResponse {
+  readonly meta: ResponseMeta;
+  /** Projects in the cabinet. */
+  readonly projects: number;
+  /** Lists of wallets: created, and checked to the end. */
+  readonly lists: { readonly created: number; readonly checked: number };
+  readonly campaigns: number;
+  /** Entries of holders in campaigns. */
+  readonly campaignJoins: number;
+  readonly fees: FeeHistoryView;
 }
 
 /** GET /v1/owner/metrics?from=&to= (owner key): every series for the days asked, in one answer. */
