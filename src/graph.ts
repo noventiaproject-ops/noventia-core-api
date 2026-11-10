@@ -8,6 +8,7 @@
  * graph of a token's largest holders as aggregates with short addresses only and no transaction
  * (`GET /v1/graph/token/{mint}`, no key).
  */
+import type { EvidenceLevel, ListLabelCode } from './projects.js';
 import type { ResponseMeta, SolanaTxProof } from './types.js';
 
 /**
@@ -58,6 +59,32 @@ export interface FundingNode {
   /** Wallets of the list this node first funded. */
   readonly fundedCount: number;
   readonly infrastructure?: GraphInfrastructure;
+  /** 1.24.0, a wallet of the list: its labels now, lifted ones left out. Absent before the list is done. */
+  readonly labels?: readonly NodeLabel[];
+  /** 1.24.0, a source that is the funder of a cluster of this list: the cluster and how much stands behind it. */
+  readonly clusterId?: string;
+  readonly evidence?: EvidenceLevel;
+}
+
+/** A label of a wallet node: the code, and for a cluster label how much stands behind it. */
+export interface NodeLabel {
+  readonly code: ListLabelCode;
+  readonly evidence?: EvidenceLevel;
+}
+
+/**
+ * 1.24.0: wallets outside the list that a cluster's source sent SOL to inside the cluster's window.
+ * No address: each is one transfer with its transaction. Whether a transfer was that wallet's first
+ * SOL is not read.
+ */
+export interface OutsideListView {
+  /** The source's node id. */
+  readonly source: string;
+  readonly clusterId: string;
+  readonly count: number;
+  /** `checked`: the whole window was read. `partial`: the count is a lower bound. `not_read`: nothing is known. */
+  readonly read: 'checked' | 'partial' | 'not_read';
+  readonly edges: readonly { readonly amount: AmountView; readonly proof: SolanaTxProof; readonly at: string }[];
 }
 
 /** An edge of a project's own list graph: the first incoming SOL transfer, with its transaction. */
@@ -79,6 +106,8 @@ export interface ListFundingGraphResponse {
   readonly events: GraphEvents;
   /** Wallets of the list, those with a first funding found, and those whose history is not read far enough to know it. */
   readonly coverage: { readonly wallets: number; readonly withFunding: number; readonly withoutFunding: number };
+  /** 1.24.0: one entry per cluster of the list. */
+  readonly outsideList?: readonly OutsideListView[];
   readonly infrastructureVersion: string;
 }
 

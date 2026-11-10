@@ -343,22 +343,40 @@ export interface ClusterMember {
   readonly at: string;
 }
 
+/** A transfer from a cluster's funder to a wallet outside the list: no address, the transaction only. */
+export interface OffListTransfer {
+  readonly funding: SolanaTxProof;
+  readonly lamports: string;
+  readonly at: string;
+}
+
 /**
  * The engine's farm cluster (the same rule and thresholds version as the token check and the
  * passport freeze): at least 3 wallets whose first SOL came from one funder within 24 hours today.
- * Exchange, bridge and program addresses never form a cluster. Members outside the project's list
- * are other people's wallets: they appear only as a count and their funding transactions, never by
+ * Exchange, bridge and program addresses never form a cluster. Wallets outside the project's list
+ * are other people's wallets: they appear only as a count and their transactions, never by
  * address.
  */
 export interface ClusterView {
   readonly clusterId: string;
   readonly funder: string;
-  /** Members found on chain, in the list or not. */
+  /** Members in this list: wallets whose first SOL came from the funder inside the window. */
   readonly size: number;
   /** Members in this list, by address. */
   readonly members: readonly ClusterMember[];
-  /** Members outside this list: how many, and their funding transactions without addresses. */
-  readonly offList: { readonly count: number; readonly fundings: readonly SolanaTxProof[] };
+  /**
+   * Wallets outside this list that the funder sent SOL to inside the cluster's window: how many, and
+   * those transactions without addresses. A fact about the funder's transfers; whether a transfer was
+   * that wallet's first SOL is not read. Filled since 1.24.0 from one read of the funder's window.
+   */
+  readonly offList: {
+    readonly count: number;
+    readonly fundings: readonly SolanaTxProof[];
+    /** 1.24.0: the same transfers with amount and time, at most 200. */
+    readonly transfers?: readonly OffListTransfer[];
+    /** 1.24.0: `checked`: the funder's whole window was read. `partial`: the window holds more than was read; the count is a lower bound. `not_read`: not read (a cluster stored before 1.24.0, or the day's credits were spent). */
+    readonly read?: 'checked' | 'partial' | 'not_read';
+  };
   /** 1.21.2: how much stands behind the cluster; `some` for one signal. */
   readonly evidence?: EvidenceLevel;
   readonly window: { readonly from: string; readonly to: string };
