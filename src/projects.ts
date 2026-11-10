@@ -203,8 +203,8 @@ export type ListLabelCode = (typeof LIST_LABELS)[number];
 
 /** The fixed words each label is shown with. */
 export const LABEL_TEXT: Readonly<Record<ListLabelCode, string>> = {
-  /** 1.21.2 (owner, 9 November 2026): one signal is evidence, never a verdict; the label says what was seen. */
-  farm_cluster: 'Funded by one source: some evidence',
+  /** 1.27.0: the label is given only when two independent signals agree or one is overwhelming; with `evidence` strong, show FARM_CLUSTER_TEXT.strong. */
+  farm_cluster: 'Linked wallets: some evidence',
   looks_automated: 'Looks automated',
   fresh: 'Fresh wallet',
   sold_past_airdrops: 'Sold past airdrops',
@@ -212,6 +212,18 @@ export const LABEL_TEXT: Readonly<Record<ListLabelCode, string>> = {
   clean: 'Clean',
   not_read: 'Not read',
 };
+
+/** The words of a cluster label by its evidence (1.27.0). Facts about wallets, never about anyone's reasons. */
+export const FARM_CLUSTER_TEXT: Readonly<Record<'some' | 'strong', string>> = { some: 'Linked wallets: some evidence', strong: 'Linked wallets: strong evidence' };
+
+/**
+ * The signals of the detection engine (1.27.0, docs/DETECTION.md). Names are not translated.
+ * `commonFunder`: first SOL from the same source inside a day. `fundingBurst`: the same, many wallets in
+ * minutes with near-identical amounts. `consolidation`: funds sent to the same wallet. `synchronized`: the
+ * same programs in the same order within minutes. `preSnapshot`: first used close together shortly before
+ * the snapshot. `dayOneExit`: sold or moved out on the first day of at least two past airdrops.
+ */
+export type DetectionSignal = 'commonFunder' | 'fundingBurst' | 'consolidation' | 'synchronized' | 'preSnapshot' | 'dayOneExit';
 
 /**
  * How much stands behind a cluster label (1.21.2): `some` when one signal fired, `strong` when at least two
@@ -244,6 +256,8 @@ export interface ListLabel {
   readonly clusterId?: string;
   /** `farm_cluster` only (1.21.2): how much stands behind the label. */
   readonly evidence?: EvidenceLevel;
+  /** `farm_cluster` only (1.27.0): the signals that name this wallet; each has a fact in `facts` with this wallet's own transactions. */
+  readonly signals?: readonly DetectionSignal[];
   /** `sold_past_airdrops` and `moved_out_past_airdrops`: the measured programmes (ids from the public reports). */
   readonly programmes?: readonly string[];
   /** `looks_automated` only: the same findings as the wallet check. */
@@ -379,6 +393,8 @@ export interface ClusterView {
   };
   /** 1.21.2: how much stands behind the cluster; `some` for one signal. */
   readonly evidence?: EvidenceLevel;
+  /** 1.27.0: the signals behind the cluster. Absent on a cluster the one-signal rule made before 1.27.0. */
+  readonly signals?: readonly { readonly signal: DetectionSignal; readonly version: number; readonly strength: 'present' | 'overwhelming' }[];
   readonly window: { readonly from: string; readonly to: string };
   readonly ruleId: string;
   readonly ruleVersion: number;

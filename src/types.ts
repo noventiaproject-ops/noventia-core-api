@@ -119,6 +119,10 @@ export interface Freeze {
   readonly proofs: NonEmptyArray<Proof>;
   /** Where the owner answers the case (1.7.0). Null until the appeal flow has a page. */
   readonly appealUrl?: string | null;
+  /** 1.27.0: the reason in words, a fact and never a statement about anyone's reasons. */
+  readonly text?: string;
+  /** 1.27.0: where the holder writes to contest the freeze, with the case id. Always present. */
+  readonly appealEmail?: string;
   /** The case behind the freeze (1.7.0): open, answered by the owner, under review, appealed, or decided with the freeze kept. */
   readonly caseStatus?: 'open' | 'owner_answering' | 'under_review' | 'decided' | 'appealed';
 }
