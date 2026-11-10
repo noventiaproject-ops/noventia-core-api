@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.24.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.24.1"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.24.1:** words only: two sentences of `GET /v1/recognized` reworded, and a note that a holder with the role `source` keeps `sharePct`. No type changed.
 * **1.24.0:** the list graph shows what the list check found: `FundingNode.labels` (a wallet of the list, once the list is done), `FundingNode.clusterId` and `evidence` (the source of a cluster), and `ListFundingGraphResponse.outsideList` (per cluster: the wallets outside the list its source also sent SOL to inside the window, as transactions with no address). `ClusterView.offList` is filled from one read of the funder's window and gains `transfers` and `read`. No field removed.
 * **1.23.0:** what the core recognizes (`recognized.ts`): `GET /v1/recognized` (no key; `RecognizedResponse`: the versioned lists of exchange wallets, launchpads, lockers, bridges and programs, each entry with its source and what the core does with it). `GraphInfrastructure.kind` gains `bridge`. No field removed.
 * **1.22.1:** report amounts carry their unit: `LiveReportResponse.token` (symbol, decimals) and `amounts` (`AmountView` for claimed and unclaimed); `population.claimed`, `unclaimed` and every metric in `tokens` are whole tokens with the decimals applied (a report stored in the smallest unit is converted when read). No field removed.

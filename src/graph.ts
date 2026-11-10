@@ -116,7 +116,7 @@ export interface PublicFundingNode {
   readonly id: string;
   readonly short: string;
   readonly role: GraphRole;
-  /** For a holder: its share of the supply, percent with two decimals. */
+  /** For a holder: its share of the supply, percent with two decimals. A holder that first funded another holder has the role `source` and keeps its share. */
   readonly sharePct?: number;
   readonly fundedCount: number;
   readonly infrastructure?: GraphInfrastructure;
