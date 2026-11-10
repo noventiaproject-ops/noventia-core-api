@@ -548,6 +548,16 @@ export interface CheckStatus {
 }
 
 /**
+ * How far the creator's own history was read (1.25.1). `history` says what stands behind the creator
+ * warnings: `not_read` (no transaction held yet: show "Not read yet"), `in_part` (show "Read in
+ * part"), `complete`. The two little-history warnings follow it: `youngWallet` needs the wallet's
+ * first transaction, `fewLaunches` needs the complete history. Neither is made from what was not read.
+ */
+export interface CreatorReadStatus extends CheckStatus {
+  readonly history?: 'not_read' | 'in_part' | 'complete';
+}
+
+/**
  * GET /v1/check/token/{mint}: "can I trust this token before I buy it", answered with facts and
  * warnings, never with "safe" or "unsafe". The creator gets facts and
  * warnings, no branch level: a level needs the owner's consent.
@@ -580,7 +590,7 @@ export interface TokenCheckResponse {
    * or `not_checked` with `reason: "listed_asset"` on a listed asset's own mint, where no creator history
    * is read at all. Absent when no creator could be proven.
    */
-  readonly creatorRead?: CheckStatus;
+  readonly creatorRead?: CreatorReadStatus;
   /**
    * The creator's share of the supply over time (1.15.0): at launch and at each checkpoint after it, from
    * the creator's own movements, each with the transactions behind it. Null when no creator was proven, the
