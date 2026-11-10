@@ -24,6 +24,8 @@ export const METRIC_COUNTERS = [
   'app.links_added',
   'app.swap_quotes',
   'app.swaps_sent',
+  /** 1.26.0: swaps sent with no Noventia fee because the fee account for that token does not exist yet. */
+  'app.swaps_no_fee',
   'app.reclaims_sent',
   'app.campaign_views',
   'app.campaign_joins',
@@ -151,6 +153,40 @@ export interface OwnerTotalsResponse {
   /** Entries of holders in campaigns. */
   readonly campaignJoins: number;
   readonly fees: FeeHistoryView;
+}
+
+/**
+ * What a wallet received inside a window, split by the shape of the transaction (1.26.0), raw units
+ * (SOL and wrapped SOL 9 decimals, USDC 6). `swaps`: a token that arrived in a transaction of a Jupiter
+ * swap program. `reclaims`: SOL that arrived in a transaction that closes token accounts. `other`:
+ * anything else that came in, a top-up for one; it is neither.
+ */
+export interface WalletReceipts {
+  readonly swaps: { readonly transactions: number; readonly WSOL: string; readonly USDC: string };
+  readonly reclaims: { readonly transactions: number; readonly SOL: string };
+  readonly other: { readonly transactions: number; readonly SOL: string; readonly WSOL: string; readonly USDC: string };
+}
+
+/** One of Noventia's own wallets, read only. */
+export interface OwnerWalletView {
+  readonly id: 'fees' | 'treasury';
+  readonly address: string;
+  /** `checked`: read to the newest transaction. `partial`: the read stopped early; the receipts are a lower bound. */
+  readonly status: 'checked' | 'partial';
+  /** Lamports. */
+  readonly sol: string;
+  /** The wallet's associated token account for wrapped SOL: whether it exists, and what it holds in raw units. */
+  readonly wsol: { readonly ata: boolean; readonly balance: string };
+  readonly usdc: { readonly ata: boolean; readonly balance: string };
+  readonly received: { readonly last24h: WalletReceipts; readonly last7d: WalletReceipts };
+  /** ISO 8601, UTC: when the balances and the receipts were read. */
+  readonly asOf: string;
+}
+
+/** GET /v1/owner/wallets (owner key, 1.26.0): the fee wallet and the treasury; a wallet that is not set is left out. */
+export interface OwnerWalletsResponse {
+  readonly meta: ResponseMeta;
+  readonly wallets: readonly OwnerWalletView[];
 }
 
 /** GET /v1/owner/metrics?from=&to= (owner key): every series for the days asked, in one answer. */

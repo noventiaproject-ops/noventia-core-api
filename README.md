@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.25.1"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.26.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.26.0:** the owner's page, wallets: `GET /v1/owner/wallets` (owner key; `OwnerWalletsResponse`: for the fee wallet and the treasury the SOL balance, the wrapped SOL and USDC token accounts (exists or not, balance), and what came in over the last 24 hours and 7 days split into swap fees, reclaim fees and other). Read only. `METRIC_COUNTERS` gains `app.swaps_no_fee`. No field removed.
 * **1.25.1:** a warning is made only from what was read: `TokenCheckResponse.creatorRead.history` (`not_read`, `in_part`, `complete`; type `CreatorReadStatus`) says how much of the creator's history stands behind the creator warnings. `youngWallet` is made only from the wallet's first transaction and `fewLaunches` only from a complete history, in the token check and in the wallet check; with `not_read` show "Not read yet", with `in_part` "Read in part". No field removed.
 * **1.25.0:** the owner's page: `GET /v1/owner/totals` (owner key; `OwnerTotalsResponse`: projects, lists created and checked, campaigns, campaign joins, and what the fee wallet received over its whole history) and three reported states in `METRIC_COUNTERS`: `telegram.chats`, `telegram.groups_protected`, `discord.servers` (the bot's state when it reports: read the latest day, never add days up). No field removed.
 * **1.24.1:** words only: two sentences of `GET /v1/recognized` reworded, and a note that a holder with the role `source` keeps `sharePct`. No type changed.
