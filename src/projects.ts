@@ -203,7 +203,7 @@ export type ListLabelCode = (typeof LIST_LABELS)[number];
 
 /** The fixed words each label is shown with. */
 export const LABEL_TEXT: Readonly<Record<ListLabelCode, string>> = {
-  /** 1.27.0: the label is given only when two independent signals agree or one is overwhelming; with `evidence` strong, show FARM_CLUSTER_TEXT.strong. */
+  /** 1.27.0: the label is given only when two independent signals agree (1.27.1: with no exception); with `evidence` strong, show FARM_CLUSTER_TEXT.strong. */
   farm_cluster: 'Linked wallets: some evidence',
   looks_automated: 'Looks automated',
   fresh: 'Fresh wallet',
