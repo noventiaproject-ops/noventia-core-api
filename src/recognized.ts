@@ -30,6 +30,9 @@ export interface RecognizedList {
   readonly title: string;
   /** What the core does with an address of this list. */
   readonly use: string;
+  /** 1.28.1: the stable codes of `title` and `use` (CORE_MESSAGES), for a client that translates: `recognized.<id>.title`, `recognized.<id>.use`. */
+  readonly titleCode?: string;
+  readonly useCode?: string;
   /** Raised with any change of the list. */
   readonly version: number;
   readonly entries: readonly RecognizedEntry[];
@@ -43,4 +46,6 @@ export interface RecognizedResponse {
   readonly lists: readonly RecognizedList[];
   /** What is recognized by its nature, with no list. */
   readonly byNature: readonly string[];
+  /** 1.28.1: the stable code of each sentence of `byNature`, in the same order. */
+  readonly byNatureCodes?: readonly string[];
 }
