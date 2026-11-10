@@ -151,6 +151,7 @@ export const CORE_MESSAGES = {
   'error.not_creator.the_token_check_could_not_prove_who': 'The token check could not prove who created this token, so nobody signs in as its deployer.',
   'error.not_creator.this_wallet_did_not_sign_the_creation': 'This wallet did not sign the creation of the token; {creator} did.',
   'error.not_found.already_a_decision_is_written_once': 'Already {status}; a decision is written once.',
+  'error.not_found.no_alert_channel_is_set': 'No alert channel is set on this engine.',
   'error.not_found.no_such_call': 'No such call.',
   'error.not_found.no_such_campaign': 'No such campaign.',
   'error.not_found.no_such_case_on_these_wallets': 'No such case on these wallets.',

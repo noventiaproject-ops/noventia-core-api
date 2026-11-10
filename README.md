@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.29.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.29.1"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.29.1:** `GET /v1/owner/wallets` gains `received.allTime` (the swaps, reclaims and other split over the wallet's whole history); `GET /v1/owner/totals` `fees` and the daily `fees` series leave out transactions the wallet signed itself, as the wallets block does. A launch window (`LAUNCH_WINDOW_START`) and `POST /v1/owner/alerts/test` are engine-side and change no type. No field removed.
 * **1.29.0:** when the day's credits are spent, a passport's wallet that was not read yet waits in the queue and the answer is a normal answer with `coverage.reading` (`messageCode` "coverage.reading_check_back_later", "Reading, check back later."); a check without the app's key is still refused with `busy_today`, now with the same words (`error.busy_today.reading_check_back_later`, which replaces `error.busy_today.busy_today_try_again_tomorrow`). No field removed.
 * **1.28.2:** `GET /v1/owner/wallets` reports the USDT account (`usdt: { ata, balance }`) and USDT in the received sums (`swaps.USDT`, `other.USDT`); the Pioneer rule text carries its codes (`rule.textCodes`, `rule.params`). No field removed.
 * **1.28.1:** the words of `GET /v1/recognized` carry their codes: `lists[].titleCode`, `lists[].useCode` (`recognized.<id>.title`, `recognized.<id>.use`) and `byNatureCodes`. Entry names are proper names and stay as they are. No field removed.

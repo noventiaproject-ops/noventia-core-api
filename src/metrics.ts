@@ -181,7 +181,8 @@ export interface OwnerWalletView {
   readonly usdc: { readonly ata: boolean; readonly balance: string };
   /** 1.28.2: the USDT account, as the two above (6 decimals). */
   readonly usdt?: { readonly ata: boolean; readonly balance: string };
-  readonly received: { readonly last24h: WalletReceipts; readonly last7d: WalletReceipts };
+  /** `allTime` since 1.29.1: the same split over the wallet's whole history read so far (with `status` partial, a lower bound). */
+  readonly received: { readonly last24h: WalletReceipts; readonly last7d: WalletReceipts; readonly allTime?: WalletReceipts };
   /** ISO 8601, UTC: when the balances and the receipts were read. */
   readonly asOf: string;
 }
