@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.27.2"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.28.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.28.0:** messages a client can translate (`messages.ts`, the list in the engine's `docs/i18n/CORE_MESSAGES.md`). Every English sentence the core writes has a stable code in `CORE_MESSAGES` with its text as a template: `error.messageCode` and `error.params` next to `error.message`; `Freeze.textCode`; `IssuerPowerView.textCode` and `params`; `STAMP_MESSAGE_CODE` for the six airdrop stamps; `label.<code>` and `label.farm_cluster.<evidence>` for list labels; `creator_read.<history>`. `formatMessage(template, params)` fills the `{name}` places. The English text stays in every answer; a client that reads it keeps working. Translate by code; never translate names of signals, levels, branches, doors, tickers or error codes. No field removed.
 * **1.27.2:** every cluster label and cluster names the rules it was given under: `detectionVersion` (the detection thresholds) next to `ruleId`, `ruleVersion` and `thresholdsVersion`; a freeze case keeps the same in its reason. No field removed.
 * **1.27.1:** words and rule only: a cluster label and a freeze need two independent signals, with no exception. The path where one overwhelming signal stood in for a second one is switched off; `strength` may still read `overwhelming` on a signal and changes nothing that is shown. No type changed.
 * **1.27.0:** the detection engine, version 2. A cluster label is given only when two independent signals agree on at least three wallets of different owners, or one signal is overwhelming; a common funder alone gives no label. `ListLabel.signals` and `ClusterView.signals` name the signals (`DetectionSignal`), each with a fact carrying that wallet's own transactions; `evidence` is `some` or `strong` (`FARM_CLUSTER_TEXT`); `LABEL_TEXT.farm_cluster` reads "Linked wallets: some evidence". A passport freeze needs the same two signals between different passports; wallets of one passport never give a signal among themselves. `Freeze` gains `text` and `appealEmail`. No field removed.

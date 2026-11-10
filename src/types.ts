@@ -121,6 +121,8 @@ export interface Freeze {
   readonly appealUrl?: string | null;
   /** 1.27.0: the reason in words, a fact and never a statement about anyone's reasons. */
   readonly text?: string;
+  /** 1.28.0: the stable code of `text` (CORE_MESSAGES), for a client that translates. */
+  readonly textCode?: string;
   /** 1.27.0: where the holder writes to contest the freeze, with the case id. Always present. */
   readonly appealEmail?: string;
   /** The case behind the freeze (1.7.0): open, answered by the owner, under review, appealed, or decided with the freeze kept. */
@@ -538,6 +540,9 @@ export interface CreatorShareView {
 
 /** A power of a listed asset's issuer, shown as a fact on that asset's own mint; from 1.11.0 also the top holders' share (`concentration`), a fact there and never a warning. */
 export interface IssuerPowerView {
+  /** 1.28.0: the stable code of `text` (CORE_MESSAGES) and the values for its places, for a client that translates. */
+  readonly textCode?: string;
+  readonly params?: Readonly<Record<string, string | number>>;
   readonly power: 'mint' | 'freeze' | 'permanentDelegate' | 'transferHook' | 'defaultFrozen' | 'concentration';
   /** For example "Issuer can freeze, as with every regulated stablecoin". */
   readonly text: string;
@@ -686,6 +691,9 @@ export interface ApiError {
   readonly error: {
     readonly code: ApiErrorCode;
     readonly message: string;
+    /** 1.28.0: the stable code of `message` (CORE_MESSAGES) and the values for its `{name}` places, for a client that translates. */
+    readonly messageCode?: string;
+    readonly params?: Readonly<Record<string, string | number>>;
     /** 1.17.0: named facts behind the refusal, for a screen to show (which authority, which wallet, which field). Present on some codes only. */
     readonly details?: Readonly<Record<string, string>>;
   };
