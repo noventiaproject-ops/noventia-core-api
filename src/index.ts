@@ -13,3 +13,4 @@ export * from './search';
 export * from './links';
 export * from './metrics';
 export * from './graph';
+export * from './recognized';

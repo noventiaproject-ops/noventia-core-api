@@ -39,8 +39,9 @@ export interface GraphEvents {
 }
 
 export interface GraphInfrastructure {
-  readonly kind: 'exchange' | 'launchpad' | 'program';
-  /** The exchange's or launchpad's name from the sourced list; null for a program account. */
+  /** `bridge` since 1.23.0. */
+  readonly kind: 'exchange' | 'launchpad' | 'bridge' | 'program';
+  /** The exchange's, launchpad's or bridge's name from the sourced list; null for a program account. */
   readonly name: string | null;
 }
 
