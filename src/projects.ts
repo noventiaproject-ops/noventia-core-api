@@ -256,6 +256,8 @@ export interface ListLabel {
   readonly clusterId?: string;
   /** `farm_cluster` only (1.21.2): how much stands behind the label. */
   readonly evidence?: EvidenceLevel;
+  /** `farm_cluster` only (1.27.2): the version of the detection thresholds the label was given under (docs/DETECTION.md). With `ruleId` and `ruleVersion` it names the exact rules. */
+  readonly detectionVersion?: number;
   /** `farm_cluster` only (1.27.0): the signals that name this wallet; each has a fact in `facts` with this wallet's own transactions. */
   readonly signals?: readonly DetectionSignal[];
   /** `sold_past_airdrops` and `moved_out_past_airdrops`: the measured programmes (ids from the public reports). */
@@ -393,6 +395,8 @@ export interface ClusterView {
   };
   /** 1.21.2: how much stands behind the cluster; `some` for one signal. */
   readonly evidence?: EvidenceLevel;
+  /** 1.27.2: the version of the detection thresholds the cluster was found under. */
+  readonly detectionVersion?: number;
   /** 1.27.0: the signals behind the cluster. Absent on a cluster the one-signal rule made before 1.27.0. */
   readonly signals?: readonly { readonly signal: DetectionSignal; readonly version: number; readonly strength: 'present' | 'overwhelming' }[];
   readonly window: { readonly from: string; readonly to: string };
