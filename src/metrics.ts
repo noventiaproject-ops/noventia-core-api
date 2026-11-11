@@ -63,6 +63,8 @@ export type MetricCounter = (typeof METRIC_COUNTERS)[number];
  * - `holders_linked`, `wallets_linked`, `pioneers_taken`: the state at the end of the day.
  * - `project_sign_ins`, `lists_checked`, `wallets_checked`, `farm_clusters`, `reports_measured`,
  *   `campaigns_created`, `campaign_entries`: Noventia for Projects.
+ * - `share_credits` (since 1.30.0) per share with its own daily counter: `lists`, `list_drafts` (sizing lists not
+ *   started yet, a part of `lists`), `relay`;
  * - `helius_credits` per caller, against `limits.heliusCreditsPerDay`; `relay_refusals` per limit
  *   (`address_minute`, `address_day`, `wallet_minute`, `wallet_day`).
  * - `requests`, `errors_4xx`, `errors_5xx` per route; `latency_ms` per `route|bucket` (bucket = the
@@ -88,6 +90,7 @@ export const METRIC_SERIES = [
   'campaigns_created',
   'campaign_entries',
   'helius_credits',
+  'share_credits',
   'relay_refusals',
   'requests',
   'errors_4xx',

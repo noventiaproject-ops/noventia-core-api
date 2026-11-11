@@ -298,8 +298,14 @@ export interface ListView {
   /** Wallets accepted into the list. */
   readonly total: number;
   readonly progress: { readonly read: number; readonly labeled: number };
-  /** Before start and while running. `finishesBy` null when the core cannot say yet. */
-  readonly estimate: { readonly credits: number; readonly finishesBy: string | null };
+  /**
+   * Before start and while running. `finishesBy` null when the core cannot say yet. Since 1.30.0 a draft shows
+   * `credits` too: the core sizes its wallets in the background after they are added (1 credit each), a sized
+   * wallet counts 1 credit and 10 for every 100 transactions, a wallet not sized yet a flat 130. `walletsSized`
+   * says how many the figure rests on; `walletsLarge` how many reached the 1,000 transaction mark, counted as
+   * 1,000 though they cost more. A started list keeps the figure of its start.
+   */
+  readonly estimate: { readonly credits: number; readonly finishesBy: string | null; readonly walletsSized?: number; readonly walletsLarge?: number };
   /** Wallets per label once done (a wallet with two labels counts in both). Null before. */
   readonly summary: Readonly<Record<ListLabelCode, number>> | null;
   /** Wallets the exclusions file holds now (farm_cluster and looks_automated, minus lifted labels). */
