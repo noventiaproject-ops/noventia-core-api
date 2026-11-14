@@ -121,7 +121,8 @@ export interface PublicTransactionResponse {
     readonly accountsClosed: number;
   };
   /** Every program the transaction calls. `listed` with its name when it is one of Solana's own or in the recognized lists; `inner` when it is only called by another program. */
-  readonly programs: readonly { readonly address: string; readonly listed: boolean; readonly name: string | null; readonly inner: boolean }[];
+  /** `namedBy` (1.37.0): `jupiter_routing` when the program's own project publishes no address and the name is Jupiter's official map from program to DEX name; null otherwise. */
+  readonly programs: readonly { readonly address: string; readonly listed: boolean; readonly name: string | null; readonly inner: boolean; readonly namedBy?: 'jupiter_routing' | null }[];
   /** Powers the transaction hands to someone else over the signer's accounts. */
   readonly grants: readonly { readonly kind: 'delegate' | 'owner_changed' | 'close_authority_changed' | 'account_assigned'; readonly account: string; readonly to: string | null; readonly amountRaw: string | null }[];
   /** For each mint the signer would hold more of (at most 3): the token check at depth "mint". */
