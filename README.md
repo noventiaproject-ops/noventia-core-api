@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.37.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.40.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,9 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.40.0:** in `GET /v1/public/meta` the level of a code is named `warningLevel`, as in every answer (it was `severity`; a rename made before the first outside key). Nine English warning texts reworded by the owner; codes and message codes unchanged: `warning.liquidityPull`, `warning.wallet.liquidityPull`, `warning.transferFee`, `warning.notOfficialMint`, `warning.youngToken`, `warning.youngWallet`, `warning.wallet.youngWallet`, `warning.tx.account_reassigned`, `warning.tx.received_token_warned`.
+* **1.39.0:** the mint fact says the transfer fee in force: `transferFee.current` (the setting that applies at the epoch of the read, `epochAtRead`) and `transferFee.scheduled` (the newer setting while its epoch is ahead, else null). `older` and `newer` stay as the mint holds them; `older` is no statement of the fee now. The creation fact `solana.tokenCreated` writes `program: "token-2022"` for a mint made by Token-2022 (it said `spl-token` for both). Token check version 5.
+* **1.38.0:** the transaction check names each token account of the signer that the transaction closes (`changes.closed`: account, mint, tokens in it now, its deposit, where the deposit goes) and says how much of the SOL change is the signer's own deposits coming back (`changes.sol.depositsReturned`); the note `tx.token_account_closed` (level 1) when a closed account holds tokens now. Additions only.
 * **1.37.0:** the swap programs list gains programs with no address published by their own project, named by Jupiter's official map and marked "Named by Jupiter routing" in their source; `PublicTransactionResponse.programs[].namedBy` says `jupiter_routing` for them. No field removed.
 * **1.36.1:** `GET /v1/recognized` gains the list `dex-programs` (swap programs, each with its DEX's own source), which the transaction check uses to name the programs a transaction calls; two message codes `recognized.dex-programs.title` and `.use`. No type changed.
 * **1.36.0:** the public check API, stage 3, beta: `POST /v1/public/transaction` checks a transaction before it is signed: one simulation, never sent or stored; the signer's balances before and after, the programs called, the powers handed on (`grants`), the token check of what would arrive, and warnings `tx.*` with text. Nine message codes `warning.tx.<code>`. No field removed.

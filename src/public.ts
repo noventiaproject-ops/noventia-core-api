@@ -113,12 +113,26 @@ export interface PublicTransactionResponse {
   readonly beta: true;
   /** `error`: the simulation's error in plain parts, for example `err:InstructionError:2:Custom:6001`; null when it ran. */
   readonly simulation: { readonly status: 'ok' | 'failed'; readonly error: string | null; readonly unitsConsumed: number | null; readonly feeLamports: string | null };
-  /** The signer's balances before and after, raw integers as decimal strings. `tokens` lists only the mints whose total changes. */
+  /**
+   * The signer's balances before and after, raw integers as decimal strings. `tokens` lists only the mints whose total changes.
+   *
+   * `sol.depositsReturned` (1.38.0): lamports of account deposits (rent) that come back to the signer because the
+   * transaction closes token accounts of the signer. They are inside `after`. A returned deposit is the signer's own
+   * money put down when the account was opened; it is no gain. So `after - before` is: what the transaction moves,
+   * plus `depositsReturned`, plus wrapped SOL unwrapped from closed accounts, less the fee.
+   *
+   * `closed` (1.38.0): each closed token account of the signer. `tokenBefore`: raw tokens it holds now.
+   * `lamportsBefore`: all lamports it holds now. `depositLamports`: the deposit the closing pays out, which is
+   * `lamportsBefore` less the wrapped SOL the account holds when `mint` is wrapped SOL. `to`: where the closing sends
+   * the lamports, null when the transaction does not say. Transfers to a closed account's address fail until it is
+   * opened again; a closed account that holds tokens now carries the note `tx.token_account_closed`.
+   */
   readonly changes: {
-    readonly sol: { readonly before: string; readonly after: string } | null;
+    readonly sol: { readonly before: string; readonly after: string; readonly depositsReturned?: string } | null;
     readonly tokens: readonly { readonly mint: string; readonly decimals: number | null; readonly before: string; readonly after: string }[];
     readonly accountsOpened: number;
     readonly accountsClosed: number;
+    readonly closed?: readonly { readonly account: string; readonly mint: string; readonly tokenBefore: string; readonly lamportsBefore: string | null; readonly depositLamports: string | null; readonly to: string | null }[];
   };
   /** Every program the transaction calls. `listed` with its name when it is one of Solana's own or in the recognized lists; `inner` when it is only called by another program. */
   /** `namedBy` (1.37.0): `jupiter_routing` when the program's own project publishes no address and the name is Jupiter's official map from program to DEX name; null otherwise. */
@@ -136,8 +150,8 @@ export interface PublicTransactionResponse {
 /** GET /v1/public/meta: what a client reads once at start. Spends no credit. */
 export interface PublicMetaResponse {
   readonly meta: PublicMeta;
-  /** Every warning code a token answer can carry, with English text. `severity` is the `warningLevel` a warning with this code carries; it has another name here because this is the list of codes, with no proof to show. */
-  readonly warningCodes: readonly { readonly code: string; readonly severity: 1 | 2 | 3; readonly about: 'token' | 'creator' | 'wallet' | 'transaction'; readonly messageCode: string; readonly text: string }[];
+  /** Every warning code a token answer can carry, with English text. `warningLevel` (named `severity` until 1.40.0) is the level a warning with this code carries. A row here is a code of the list and shows no proof, unlike a warning in an answer; this is the list of codes, with no proof to show. */
+  readonly warningCodes: readonly { readonly code: string; readonly warningLevel: 1 | 2 | 3; readonly about: 'token' | 'creator' | 'wallet' | 'transaction'; readonly messageCode: string; readonly text: string }[];
   readonly factKinds: readonly string[];
   /** The calling key: its plan, its limits, and what it used today (UTC). */
   readonly key: {
