@@ -94,6 +94,44 @@ export interface PublicWalletResponse {
   readonly highestWarning: 0 | 1 | 2 | 3;
 }
 
+/** POST /v1/public/transaction (1.36.0, beta): a transaction to check before it is signed. It is simulated, never sent, never stored, never logged. */
+export interface PublicTransactionRequest {
+  /** The transaction in base64, signed or unsigned, at most 1,232 bytes. */
+  readonly transaction: string;
+  /** One of the transaction's signers: the wallet the answer is about. */
+  readonly signer: string;
+}
+
+/**
+ * What the transaction would do to its signer at this moment. A simulation is no promise: the chain can differ a
+ * second later, and a program can behave differently on the real run. The answer never says a transaction is safe.
+ */
+export interface PublicTransactionResponse {
+  readonly meta: PublicMeta;
+  readonly subject: { readonly kind: 'transaction'; readonly signer: string };
+  /** The call is in beta: fields can be added. */
+  readonly beta: true;
+  /** `error`: the simulation's error in plain parts, for example `err:InstructionError:2:Custom:6001`; null when it ran. */
+  readonly simulation: { readonly status: 'ok' | 'failed'; readonly error: string | null; readonly unitsConsumed: number | null; readonly feeLamports: string | null };
+  /** The signer's balances before and after, raw integers as decimal strings. `tokens` lists only the mints whose total changes. */
+  readonly changes: {
+    readonly sol: { readonly before: string; readonly after: string } | null;
+    readonly tokens: readonly { readonly mint: string; readonly decimals: number | null; readonly before: string; readonly after: string }[];
+    readonly accountsOpened: number;
+    readonly accountsClosed: number;
+  };
+  /** Every program the transaction calls. `listed` with its name when it is one of Solana's own or in the recognized lists; `inner` when it is only called by another program. */
+  readonly programs: readonly { readonly address: string; readonly listed: boolean; readonly name: string | null; readonly inner: boolean }[];
+  /** Powers the transaction hands to someone else over the signer's accounts. */
+  readonly grants: readonly { readonly kind: 'delegate' | 'owner_changed' | 'close_authority_changed' | 'account_assigned'; readonly account: string; readonly to: string | null; readonly amountRaw: string | null }[];
+  /** For each mint the signer would hold more of (at most 3): the token check at depth "mint". */
+  readonly tokens: readonly { readonly mint: string; readonly highestWarning: 0 | 1 | 2 | 3; readonly warnings: readonly PublicWarning[]; readonly notRead: readonly PublicNotRead[] }[];
+  /** Codes `tx.*`. The proof of each is the account it is about, at the slot the simulation ran on. */
+  readonly warnings: readonly PublicWarning[];
+  readonly notRead: readonly PublicNotRead[];
+  readonly highestWarning: 0 | 1 | 2 | 3;
+}
+
 /** GET /v1/public/meta: what a client reads once at start. Spends no credit. */
 export interface PublicMetaResponse {
   readonly meta: PublicMeta;
