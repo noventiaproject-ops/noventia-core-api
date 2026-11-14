@@ -152,6 +152,7 @@ export const CORE_MESSAGES = {
   'error.not_creator.this_wallet_did_not_sign_the_creation': 'This wallet did not sign the creation of the token; {creator} did.',
   'error.not_found.already_a_decision_is_written_once': 'Already {status}; a decision is written once.',
   'error.not_found.no_alert_channel_is_set': 'No alert channel is set on this engine.',
+  'error.not_found.no_fee_wallet_is_set_or_read': 'No fee wallet is set, or its history could not be read yet.',
   'error.not_found.no_such_call': 'No such call.',
   'error.not_found.no_such_campaign': 'No such campaign.',
   'error.not_found.no_such_case_on_these_wallets': 'No such case on these wallets.',
@@ -261,6 +262,7 @@ export const CORE_MESSAGES = {
   'stamp.not_claimed': 'Not claimed',
   'stamp.not_held_at_30_days': 'Not held at 30 days',
   'stamp.sold_on_day_one': 'Sold on day one',
+  'turnover.wallets_not_counted': 'Wallets are not counted until the hash key is set on the engine.',
 } as const;
 
 export type CoreMessageCode = keyof typeof CORE_MESSAGES;

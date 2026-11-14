@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.32.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.33.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.33.0:** `GET /v1/owner/turnover` (owner key): swaps and SOL reclaims made through Noventia for 24 hours, 7 days and all time, with real amounts from each transaction, the swaps' size in SOL and in dollars, what was returned to people, Noventia's fees, and the number of different wallets (exact for 24 hours and 7 days, an estimate for all time, null until the engine has its hash key). Numbers only. No field removed.
 * **1.32.0:** the token check reads more of Token-2022. The mint fact (`solana.mintState`) gains `transferFeeAuthority`, `transferFeeWithdrawAuthority`, `transferHookAuthority`, `nonTransferable`, `confidentialTransfer` and `pausable`; new warning codes `transferFeeChangeable`, `transferHookChangeable`, `nonTransferable`, `pausable` (level 2 each) and `confidentialTransfer` (level 1); on a listed asset's own mint the same read as `issuerPowers` with five new `power` values and their message codes. No field removed.
 * **1.31.0:** `POST /v1/passport/activity` (`core.activity`): a person's history with Noventia, the swaps and SOL reclaims of the linked wallets, newest first, with real amounts from each transaction, a status per wallet and a cursor. Nothing is kept for it. No field removed.
 * **1.30.0:** a list that has not started shows `estimate.credits` from its wallets' sizes, with `estimate.walletsSized` and `estimate.walletsLarge`; a started list keeps the figure of its start, now made from sizes too. The owner's metrics gain the `share_credits` series (`lists`, `list_drafts`, `relay`). No field removed.

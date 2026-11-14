@@ -196,6 +196,48 @@ export interface OwnerWalletsResponse {
   readonly wallets: readonly OwnerWalletView[];
 }
 
+/** What people did through Noventia in one window. Every amount a raw integer as a decimal string; `usd` in dollars, 2 decimals. */
+export interface TurnoverWindowView {
+  /**
+   * Different wallets that swapped, reclaimed, or did either. `exact` true for 24 hours and 7 days; false for all
+   * time, where the count is an estimate about 1 percent off, made with nothing kept per wallet. `countedFrom` a
+   * UTC day when the count does not reach back to the first transaction, else null. Null while wallets are not
+   * counted (`walletsReason` says why). No address and no hash is ever answered.
+   */
+  readonly wallets: { readonly swapped: number; readonly reclaimed: number; readonly any: number; readonly exact: boolean; readonly countedFrom: string | null } | null;
+  readonly swaps: {
+    readonly count: number;
+    /**
+     * `lamports`: the swaps' size in SOL terms: the SOL leg of each swap that has one, else its dollar value divided
+     * by SOL's price at the transaction's time. `usd`: the USDC or USDT leg at face value when a swap has one, else
+     * what it paid at the price nearest the transaction's time (DefiLlama, within 6 hours). `notPriced` swaps are
+     * missing from `usd`, `notInSol` from `lamports`; both are in `count`.
+     */
+    readonly volume: { readonly lamports: string; readonly usd: number; readonly notPriced: number; readonly notInSol: number };
+  };
+  /** `rentLamports`: the rent of the token accounts closed; `returnedLamports`: what stayed with people after Noventia's fee. */
+  readonly reclaims: { readonly count: number; readonly returnedLamports: string; readonly rentLamports: string };
+  /** Noventia's fees from these swaps and reclaims: lamports (a fee in wrapped SOL counts here), USDC and USDT with 6 decimals. */
+  readonly fees: { readonly SOL: string; readonly USDC: string; readonly USDT: string };
+}
+
+/**
+ * GET /v1/owner/turnover (owner key, 1.33.0): swaps and SOL reclaims made through Noventia, counted from the
+ * receipts of the Fees wallet with every amount read from the transaction. Numbers only. `status` partial: the
+ * history was not read to its end yet, so all-time numbers are a lower bound.
+ */
+export interface OwnerTurnoverResponse {
+  readonly meta: ResponseMeta;
+  readonly status: 'checked' | 'partial';
+  /** ISO 8601, UTC. */
+  readonly asOf: string;
+  readonly last24h: TurnoverWindowView;
+  readonly last7d: TurnoverWindowView;
+  readonly allTime: TurnoverWindowView;
+  /** Why `wallets` is null in every window, with the message code; null when wallets are counted. */
+  readonly walletsReason: { readonly code: string; readonly text: string } | null;
+}
+
 /** GET /v1/owner/metrics?from=&to= (owner key): every series for the days asked, in one answer. */
 export interface OwnerMetricsResponse {
   readonly meta: ResponseMeta;
