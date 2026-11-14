@@ -549,7 +549,8 @@ export interface IssuerPowerView {
   /** 1.28.0: the stable code of `text` (CORE_MESSAGES) and the values for its places, for a client that translates. */
   readonly textCode?: string;
   readonly params?: Readonly<Record<string, string | number>>;
-  readonly power: 'mint' | 'freeze' | 'permanentDelegate' | 'transferHook' | 'defaultFrozen' | 'concentration';
+  /** 1.32.0 adds `transferFeeChange`, `transferHookChange`, `nonTransferable`, `pausable` and `confidentialTransfer`. */
+  readonly power: 'mint' | 'freeze' | 'permanentDelegate' | 'transferHook' | 'defaultFrozen' | 'concentration' | 'transferFeeChange' | 'transferHookChange' | 'nonTransferable' | 'pausable' | 'confidentialTransfer';
   /** For example "Issuer can freeze, as with every regulated stablecoin". */
   readonly text: string;
   readonly factIds: readonly string[];
