@@ -880,6 +880,65 @@ export interface YourAirdropsResponse {
   readonly method: { readonly dayOneHours: number; readonly dayOneMinPct: number; readonly heldMinPct: number; readonly checkpointDays: readonly number[]; readonly soldWithinDays: readonly number[] };
 }
 
+/**
+ * POST /v1/passport/activity (1.31.0): a person's history with Noventia, for wallets their owner linked: the swaps
+ * and SOL reclaims made through Noventia, newest first. Found in the wallets' own transactions the core already
+ * holds, as the ones that pay a fee to the Noventia Fees wallet; nothing is kept for it. Every amount is read from
+ * the transaction, never derived from a fee rate. Needs the app's key. No EP and no level anywhere in it.
+ */
+export interface ActivityRequest {
+  /** 1 to 10 addresses. */
+  readonly wallets: readonly string[];
+  /** Rows to answer, 1 to 100; 50 when absent or not a whole number in that range. */
+  readonly limit?: number;
+  /** The `next` of the answer before: rows older than it follow. Ignored when it is not a time and a signature. */
+  readonly before?: ActivityCursor;
+}
+
+/** A place in the history: the block time (ISO 8601, UTC) and signature of a row. */
+export interface ActivityCursor {
+  readonly blockTime: string;
+  readonly signature: string;
+}
+
+/** One side of a swap. `symbol` only for SOL (wrapped SOL reads as SOL), USDC and USDT; `decimals` null when the mint could not be read. */
+export interface ActivityAmount {
+  readonly mint: string;
+  readonly symbol: string | null;
+  /** Raw integer as a decimal string. */
+  readonly amountRaw: string;
+  readonly decimals: number | null;
+}
+
+export interface ActivityItem {
+  readonly kind: 'swap' | 'reclaim';
+  readonly signature: string;
+  /** ISO 8601, UTC. */
+  readonly blockTime: string;
+  readonly wallet: string;
+  /** The Noventia fee the transaction paid. */
+  readonly fee: { readonly asset: 'SOL' | 'USDC' | 'USDT'; readonly amountRaw: string; readonly decimals: number };
+  /** For a swap: what the wallet gave (the fee is part of it) and what it got. Null when the transaction does not show one clean pair. */
+  readonly swap: { readonly paid: ActivityAmount; readonly received: ActivityAmount } | null;
+  /** For a reclaim: token accounts closed, the rent they held, and what stayed with the wallet after the fee. */
+  readonly reclaim: { readonly accountsClosed: number; readonly rentLamports: string; readonly returnedLamports: string } | null;
+  /** The transaction itself. */
+  readonly proofs: readonly Proof[];
+}
+
+export interface ActivityResponse {
+  readonly meta: ResponseMeta;
+  /** Newest first, at most `limit`. */
+  readonly items: readonly ActivityItem[];
+  /**
+   * How much of each wallet the rows rest on: `checked` the whole history; `partial` a part of it (a very large
+   * wallet, or today's reading stopped early); `reading` nothing read yet, check back later.
+   */
+  readonly wallets: readonly { readonly address: string; readonly status: 'checked' | 'partial' | 'reading' }[];
+  /** Pass as `before` for the rows after these; null when there are none. */
+  readonly next: ActivityCursor | null;
+}
+
 /** One rule the core runs, as GET /v1/rules lists it (1.7.0). */
 export interface RuleView {
   readonly ruleId: string;
@@ -915,4 +974,4 @@ export interface RulesResponse {
   readonly freeze: { readonly what: string; readonly until: string; readonly appeal: string };
 }
 
-export type ApiResponse = PassportResponse | WalletCheckResponse | TokenCheckResponse | FoundResponse | YourAirdropsResponse | RulesResponse | LinkWalletResponse | UnlinkWalletResponse | PrivacyResponse | PublicCardResponse;
+export type ApiResponse = PassportResponse | WalletCheckResponse | TokenCheckResponse | FoundResponse | YourAirdropsResponse | ActivityResponse | RulesResponse | LinkWalletResponse | UnlinkWalletResponse | PrivacyResponse | PublicCardResponse;

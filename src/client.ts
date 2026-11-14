@@ -14,7 +14,7 @@ import type { ReviewRequest, ReviewResponse } from './projects.js';
 import type { TokenSearchResponse } from './search.js';
 import type { HallResponse, KeepPioneerRequest, KeepPioneerResponse, PioneersResponse, RetirePioneerRequest, RetirePioneerResponse } from './pioneers.js';
 import type { ConfirmLinkRequest, ConfirmLinkResponse, LinkAlertsRequest, LinkAlertsResponse, LinkChannel, LinkCodeRequest, LinkCodeResponse, LinkEventsResponse, LinksResponse, PioneerChangesResponse, UnlinkRequest, UnlinkResponse } from './links.js';
-import type { ApiError, ApiErrorCode, FoundResponse, HealthResponse, KeepLinkRequest, LinkWalletRequest, LinkWalletResponse, PassportRequest, PassportResponse, PrivacyRequest, PrivacyResponse, PublicCardResponse, UnlinkWalletRequest, UnlinkWalletResponse, RpcRequest, RpcResponse, RulesResponse, TokenCheckResponse, WalletCheckResponse, YourAirdropsRequest, YourAirdropsResponse } from './types.js';
+import type { ActivityRequest, ActivityResponse, ApiError, ApiErrorCode, FoundResponse, HealthResponse, KeepLinkRequest, LinkWalletRequest, LinkWalletResponse, PassportRequest, PassportResponse, PrivacyRequest, PrivacyResponse, PublicCardResponse, UnlinkWalletRequest, UnlinkWalletResponse, RpcRequest, RpcResponse, RulesResponse, TokenCheckResponse, WalletCheckResponse, YourAirdropsRequest, YourAirdropsResponse } from './types.js';
 
 export type CoreClientOptions = {
   /** Without a trailing slash, for example the mock server http://127.0.0.1:8788. */
@@ -87,6 +87,8 @@ export function createCoreClient(options: CoreClientOptions) {
     found: (request: FoundRequest) => call<FoundResponse>('POST', '/v1/passport/found', request, true),
     /** "Your airdrops" (1.5.0): for each measured programme, what the wallet claimed, did and what it was worth. Needs the app's key. */
     airdrops: (request: YourAirdropsRequest) => call<YourAirdropsResponse>('POST', '/v1/passport/airdrops', request, true),
+    /** A person's history with Noventia (1.31.0): the swaps and SOL reclaims of the linked wallets, newest first. Needs the app's key. */
+    activity: (request: ActivityRequest) => call<ActivityResponse>('POST', '/v1/passport/activity', request, true),
     health: () => call<HealthResponse>('GET', '/v1/health'),
     /**
      * The cleanup RPC relay (1.2.0): one allowlisted JSON-RPC call, forwarded with the server's key.
