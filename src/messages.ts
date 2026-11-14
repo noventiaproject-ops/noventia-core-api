@@ -288,6 +288,12 @@ export const CORE_MESSAGES = {
   'warning.transferFeeChangeable': 'The transfer fee can be set or raised by its authority.',
   'warning.transferHook': 'A program runs on every transfer and can refuse it.',
   'warning.transferHookChangeable': 'The program that runs on every transfer can be set or changed by its authority.',
+  'warning.wallet.fewLaunches': 'This wallet has launched few tokens.',
+  'warning.wallet.firstDayDumps': 'This wallet sold most of its own tokens on day one in several launches.',
+  'warning.wallet.liquidityPull': 'This wallet removed a launch\'s liquidity soon after it.',
+  'warning.wallet.movedOutFirstDay': 'This wallet moved most of its own tokens to other wallets on day one of a launch.',
+  'warning.wallet.oneFirstDayDump': 'This wallet sold most of its own tokens on day one in one launch.',
+  'warning.wallet.youngWallet': 'This wallet is young.',
   'warning.youngToken': 'The token is young.',
   'warning.youngWallet': 'The creator\'s wallet is young.',
 } as const;
