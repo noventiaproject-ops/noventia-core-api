@@ -15,3 +15,4 @@ export * from './metrics';
 export * from './graph';
 export * from './recognized';
 export * from './messages';
+export * from './public';

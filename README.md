@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.33.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.34.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.34.0:** the public check API, stage 1 (`public.ts`): `GET /v1/public/token/{mint}?depth=mint|full` and `GET /v1/public/meta` with a partner key, in one envelope (`facts`, `warnings` with `code`, `warningLevel`, `proofs`, `messageCode` and `text`, `notRead`, `highestWarning`, the rule versions); the owner's calls for partners (`/v1/owner/partners`). 21 message codes `warning.<code>` with English text. `share_credits` gains `partners`. No field removed.
 * **1.33.0:** `GET /v1/owner/turnover` (owner key): swaps and SOL reclaims made through Noventia for 24 hours, 7 days and all time, with real amounts from each transaction, the swaps' size in SOL and in dollars, what was returned to people, Noventia's fees, and the number of different wallets (exact for 24 hours and 7 days, an estimate for all time, null until the engine has its hash key). Numbers only. No field removed.
 * **1.32.0:** the token check reads more of Token-2022. The mint fact (`solana.mintState`) gains `transferFeeAuthority`, `transferFeeWithdrawAuthority`, `transferHookAuthority`, `nonTransferable`, `confidentialTransfer` and `pausable`; new warning codes `transferFeeChangeable`, `transferHookChangeable`, `nonTransferable`, `pausable` (level 2 each) and `confidentialTransfer` (level 1); on a listed asset's own mint the same read as `issuerPowers` with five new `power` values and their message codes. No field removed.
 * **1.31.0:** `POST /v1/passport/activity` (`core.activity`): a person's history with Noventia, the swaps and SOL reclaims of the linked wallets, newest first, with real amounts from each transaction, a status per wallet and a cursor. Nothing is kept for it. No field removed.
