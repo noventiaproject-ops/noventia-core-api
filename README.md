@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.36.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.36.1"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.36.1:** `GET /v1/recognized` gains the list `dex-programs` (swap programs, each with its DEX's own source), which the transaction check uses to name the programs a transaction calls; two message codes `recognized.dex-programs.title` and `.use`. No type changed.
 * **1.36.0:** the public check API, stage 3, beta: `POST /v1/public/transaction` checks a transaction before it is signed: one simulation, never sent or stored; the signer's balances before and after, the programs called, the powers handed on (`grants`), the token check of what would arrive, and warnings `tx.*` with text. Nine message codes `warning.tx.<code>`. No field removed.
 * **1.35.0:** the public check API, stage 2: `GET /v1/public/wallet/{address}`: what the address is (a wallet, a recognized exchange, launchpad, bridge or program, or another account), its first transaction and age, the tokens it launched with their record, the automation fact, warnings with text. Nothing of a passport. Six message codes `warning.wallet.<code>`. No field removed.
 * **1.34.0:** the public check API, stage 1 (`public.ts`): `GET /v1/public/token/{mint}?depth=mint|full` and `GET /v1/public/meta` with a partner key, in one envelope (`facts`, `warnings` with `code`, `warningLevel`, `proofs`, `messageCode` and `text`, `notRead`, `highestWarning`, the rule versions); the owner's calls for partners (`/v1/owner/partners`). 21 message codes `warning.<code>` with English text. `share_credits` gains `partners`. No field removed.

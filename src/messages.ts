@@ -253,6 +253,8 @@ export const CORE_MESSAGES = {
   'recognized.bridges.use': 'A bridge pays out from accounts its program owns and serves many unrelated people. A first funding that came from one links nobody, and a distribution report names the program when tokens move to it.',
   'recognized.by_nature.program_account': 'An address off the ed25519 curve is an account of a program. It is not treated as a common funder.',
   'recognized.by_nature.system_program': 'The system program as an authority means nobody holds it.',
+  'recognized.dex-programs.title': 'Swap programs',
+  'recognized.dex-programs.use': 'The transaction check of the public API names these programs when a transaction calls them. A program with no entry is shown by its address, with a note that it is outside the lists.',
   'recognized.exchanges.title': 'Exchange wallets',
   'recognized.exchanges.use': 'A wallet whose first SOL came from one of these is linked to nobody by that transfer. Tokens moved to one are counted as moved to an exchange in a distribution report.',
   'recognized.governance-programs.title': 'Governance programs',
