@@ -652,6 +652,8 @@ export type ApiErrorCode =
   | 'invalid_rpc'
   /** 1.2.1 (403): the request came from a browser page whose origin is not allowed. Nothing was done. */
   | 'origin_not_allowed'
+  /** 1.42.0 (404), the invite codes of the public check API: the code is unknown, used, withdrawn or past its time. One answer for all four. */
+  | 'invite_not_valid'
   /** 1.2.0, the relay (502): the call was forwarded and the RPC did not answer. A sent transaction may still have reached the network: check its signature status, never send it again. */
   | 'upstream_failed'
   /** 1.16.0, Telegram and Discord links: see LinkErrorCode in links.ts. */

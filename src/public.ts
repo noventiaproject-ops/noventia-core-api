@@ -170,6 +170,7 @@ export interface PublicMetaResponse {
 export interface PartnerView {
   readonly partnerId: string;
   readonly name: string;
+  /** An email, or since 1.42.0 for a partner made from an invite code: an email or a handle the partner gave, or empty. */
   readonly contactEmail: string;
   readonly plan: string;
   readonly limits: { readonly requestsPerMinute: number; readonly creditsPerDay: number; readonly transactionChecksPerDay: number };
@@ -178,6 +179,52 @@ export interface PartnerView {
   readonly createdAt: string;
   readonly stoppedAt: string | null;
   readonly today: { readonly calls: number; readonly credits: number };
+}
+
+/** 1.42.0. An invite code as the owner's calls answer it. The code is never in it. */
+export interface InviteView {
+  readonly inviteId: string;
+  /** The owner's own label: the partner made from the code takes it as its name. */
+  readonly label: string;
+  readonly plan: string;
+  readonly status: 'open' | 'used' | 'expired' | 'revoked';
+  /** ISO 8601, UTC. */
+  readonly createdAt: string;
+  readonly expiresAt: string;
+  readonly usedAt: string | null;
+  /** The partner made from it, once it is used. */
+  readonly partnerId: string | null;
+}
+
+/** 1.42.0. POST /v1/owner/invites (owner key), body `{ label, days?, plan? }`: the new invite and its code, shown this once and never again. */
+export interface OwnerInviteCreatedResponse {
+  readonly meta: ResponseMeta;
+  readonly invite: InviteView;
+  readonly code: string;
+}
+
+/** 1.42.0. GET /v1/owner/invites (owner key). `POST /v1/owner/invites/{inviteId}/revoke` answers `{ meta, invite }`. */
+export interface OwnerInvitesResponse {
+  readonly meta: ResponseMeta;
+  readonly invites: readonly InviteView[];
+}
+
+/**
+ * 1.42.0. POST /v1/public/invites/activate, no key, body `{ code, contact? }` (`contact`: an email or a handle, up
+ * to 200 characters, optional). Answers the new partner's key this once; the core keeps its sha256 only. A code
+ * works once. A code that is unknown, used, withdrawn or past its time gets one answer: 404 `invite_not_valid`.
+ * 429 `rate_limited` with `Retry-After` after 5 tries in 10 minutes or 20 in a UTC day from one address. A
+ * browser may call it from https://noventia.xyz only. `Cache-Control: no-store`.
+ */
+export interface InviteActivatedResponse {
+  readonly meta: ResponseMeta;
+  readonly key: string;
+  readonly partner: {
+    readonly partnerId: string;
+    readonly name: string;
+    readonly plan: string;
+    readonly limits: { readonly requestsPerMinute: number; readonly creditsPerDay: number; readonly transactionChecksPerDay: number };
+  };
 }
 
 /** POST /v1/owner/partners (owner key): the new partner and its key, shown this once and never again. */
