@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.41.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.41.1"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.41.1:** the sentence of `fewLaunches` no longer names the threshold: "The creator has {launches} token launches on record." (owner, 15 November 2026). The `min` param stays. Text only.
 * **1.41.0:** one wording of every warning for every surface. A warning of the token check and the wallet check carries `params` (the numbers it was made from), `messageCode` and the built English `text`; the public API's warnings gain `params`. Seven warnings have a more exact sentence with numbers (`firstDayDumps`, `oneFirstDayDump`, `movedOutFirstDay`, `fewLaunches`, `topHoldersConcentrated`, `fundingCluster`, `transferFeeChangeable`, and the `warning.wallet.*` twins of the first four). New variants of a code: `.one` (exactly one launch), `.plain` (the earlier sentence, used when a number is missing) and `warning.pausable.paused`. In `GET /v1/public/meta` a sentence with numbers shows its placeholders. Additions only.
 * **1.40.0:** in `GET /v1/public/meta` the level of a code is named `warningLevel`, as in every answer (it was `severity`; a rename made before the first outside key). Nine English warning texts reworded by the owner; codes and message codes unchanged: `warning.liquidityPull`, `warning.wallet.liquidityPull`, `warning.transferFee`, `warning.notOfficialMint`, `warning.youngToken`, `warning.youngWallet`, `warning.wallet.youngWallet`, `warning.tx.account_reassigned`, `warning.tx.received_token_warned`.
 * **1.39.0:** the mint fact says the transfer fee in force: `transferFee.current` (the setting that applies at the epoch of the read, `epochAtRead`) and `transferFee.scheduled` (the newer setting while its epoch is ahead, else null). `older` and `newer` stay as the mint holds them; `older` is no statement of the fee now. The creation fact `solana.tokenCreated` writes `program: "token-2022"` for a mint made by Token-2022 (it said `spl-token` for both). Token check version 5.
