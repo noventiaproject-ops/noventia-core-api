@@ -28,6 +28,7 @@ export const CORE_MESSAGES = {
   'error.authority_held_by_wallet.the_of_this_subject_is_held_by': 'The {name} of this subject is held by the wallet {authority}: only that wallet can sign in.',
   'error.bots_busy_today.open_it_in_the_app': 'The bots\' new wallets for today are used. Open it in the app: app.noventia.app',
   'error.busy_today.reading_check_back_later': 'Reading, check back later.',
+  'error.busy_today.swaps_are_busy_right_now': 'Swaps are busy right now. Nothing was sent. Try again in a few minutes.',
   'error.campaign_closed.the_campaign_is_closed': 'The campaign is closed.',
   'error.campaign_full.the_campaign_has_no_places_left': 'The campaign has no places left.',
   'error.challenge_expired.the_challenge_has_expired_or_was_used': 'The challenge has expired or was used. Ask for a new one.',

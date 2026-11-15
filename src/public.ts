@@ -182,7 +182,7 @@ export interface PartnerView {
 }
 
 /** 1.42.0. An invite code as the owner's calls answer it. The code is never in it. */
-export interface InviteView {
+export interface PartnerInviteView {
   readonly inviteId: string;
   /** The owner's own label: the partner made from the code takes it as its name. */
   readonly label: string;
@@ -199,14 +199,14 @@ export interface InviteView {
 /** 1.42.0. POST /v1/owner/invites (owner key), body `{ label, days?, plan? }`: the new invite and its code, shown this once and never again. */
 export interface OwnerInviteCreatedResponse {
   readonly meta: ResponseMeta;
-  readonly invite: InviteView;
+  readonly invite: PartnerInviteView;
   readonly code: string;
 }
 
 /** 1.42.0. GET /v1/owner/invites (owner key). `POST /v1/owner/invites/{inviteId}/revoke` answers `{ meta, invite }`. */
 export interface OwnerInvitesResponse {
   readonly meta: ResponseMeta;
-  readonly invites: readonly InviteView[];
+  readonly invites: readonly PartnerInviteView[];
 }
 
 /**
