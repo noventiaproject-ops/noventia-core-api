@@ -26,6 +26,7 @@ export const CORE_MESSAGES = {
   'error.already_linked.this_wallet_is_linked_to_another_noventia': 'This wallet is linked to another Noventia ID. Unlink it there first.',
   'error.authority_held_by_unknown_program.the_of_this_subject_is_held_by': 'The {name} of this subject is held by {authority}, a program address the core does not know as a launchpad. Send a review request (POST /v1/projects/reviews).',
   'error.authority_held_by_wallet.the_of_this_subject_is_held_by': 'The {name} of this subject is held by the wallet {authority}: only that wallet can sign in.',
+  'error.bots_busy_today.open_it_in_the_app': 'The bots\' new wallets for today are used. Open it in the app: app.noventia.app',
   'error.busy_today.reading_check_back_later': 'Reading, check back later.',
   'error.campaign_closed.the_campaign_is_closed': 'The campaign is closed.',
   'error.campaign_full.the_campaign_has_no_places_left': 'The campaign has no places left.',

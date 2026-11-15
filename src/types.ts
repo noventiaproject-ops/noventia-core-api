@@ -647,6 +647,8 @@ export type ApiErrorCode =
   | 'unauthorized'
   | 'source_unavailable'
   | 'busy_today'
+  /** 1.43.0 (503), only for a call with a bot's key: the bots' own share of new wallets is used for today. `Retry-After` gives the seconds until 00:00 UTC. The same wallet can be opened in the app. */
+  | 'bots_busy_today'
   /** 1.2.0, the relay: the method is not on the allowlist (403); the call has the wrong shape or the transaction is not fully signed (400). Nothing was forwarded. */
   | 'method_not_allowed'
   | 'invalid_rpc'

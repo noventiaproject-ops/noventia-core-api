@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.42.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.43.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.43.0:** `GET /v1/public/status` with no key (`PublicStatusResponse`): the core, the Telegram bot, the Discord bot and the app, each `up`, `down` or `unknown` with the time it was last seen. A browser may call it from https://noventia.xyz only; the answer is reused for 60 seconds. The error code `bots_busy_today` (503) for a bot's key whose share of new wallets is used for the day. Additions only.
 * **1.42.0:** invite codes for the public check API. `POST /v1/public/invites/activate` with no key and the body `{ code, contact? }` answers a new partner's key once (`InviteActivatedResponse`); a code works once and until its last day. One refusal for a code that is unknown, used, withdrawn or past its time: 404 `invite_not_valid` (new error code). 429 after 5 tries in 10 minutes or 20 in a UTC day from one address. The owner's calls: `InviteView`, `OwnerInviteCreatedResponse`, `OwnerInvitesResponse`. `PartnerView.contactEmail` may be a handle or empty for a partner made from a code. Additions only.
 * **1.41.1:** the sentence of `fewLaunches` no longer names the threshold: "The creator has {launches} token launches on record." (owner, 15 November 2026). The `min` param stays. Text only.
 * **1.41.0:** one wording of every warning for every surface. A warning of the token check and the wallet check carries `params` (the numbers it was made from), `messageCode` and the built English `text`; the public API's warnings gain `params`. Seven warnings have a more exact sentence with numbers (`firstDayDumps`, `oneFirstDayDump`, `movedOutFirstDay`, `fewLaunches`, `topHoldersConcentrated`, `fundingCluster`, `transferFeeChangeable`, and the `warning.wallet.*` twins of the first four). New variants of a code: `.one` (exactly one launch), `.plain` (the earlier sentence, used when a number is missing) and `warning.pausable.paused`. In `GET /v1/public/meta` a sentence with numbers shows its placeholders. Additions only.

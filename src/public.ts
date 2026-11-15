@@ -227,6 +227,26 @@ export interface InviteActivatedResponse {
   };
 }
 
+/**
+ * 1.43.0. GET /v1/public/status, no key. Whether the core, the Telegram bot, the Discord bot and the app work,
+ * and when each was last seen. `unknown`: not seen since the core last started. A bot is seen when it reports to
+ * the core, every 15 minutes, and reads `down` when its last report is older than 35 minutes. The app's front
+ * page is asked every 5 minutes. The answer is reused for 60 seconds (`Cache-Control: public, max-age=60`). A
+ * browser may call it from https://noventia.xyz only. 429 `rate_limited` with `Retry-After` past 60 calls a
+ * minute from one address.
+ */
+export interface PublicStatusResponse {
+  readonly meta: ResponseMeta;
+  /** When this answer was made, ISO 8601 UTC. */
+  readonly checkedAt: string;
+  readonly services: readonly {
+    readonly id: 'core' | 'telegram' | 'discord' | 'app';
+    readonly state: 'up' | 'down' | 'unknown';
+    /** When the service was last seen or asked; null while `unknown`. */
+    readonly checkedAt: string | null;
+  }[];
+}
+
 /** POST /v1/owner/partners (owner key): the new partner and its key, shown this once and never again. */
 export interface OwnerPartnerCreatedResponse {
   readonly meta: ResponseMeta;
