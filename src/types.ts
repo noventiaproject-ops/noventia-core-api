@@ -197,6 +197,20 @@ export interface Warning {
   readonly about?: 'token' | 'creator';
   readonly factIds: readonly string[];
   readonly proofs: readonly Proof[];
+  /**
+   * 1.41.0: the numbers the warning was made from, by the names its text in the message catalog uses
+   * (`warning.<code>`, or `warning.wallet.<code>` on a wallet check): for example `launches`, `pct`, `hours`,
+   * `days`, `min`, `top`, `size`, `bps`. Empty when the warning has none. Absent on answers kept from before.
+   */
+  readonly params?: Readonly<Record<string, number>>;
+  /**
+   * 1.41.0, token check and wallet check: the catalog code of the sentence that was built and the English sentence
+   * itself, with the numbers in. One wording for every surface: show `text`, or translate by `messageCode` and
+   * `params`. The code is `warning.<code>` or one of its variants: `.one` (exactly one launch or one holder), `.paused`, and
+   * `.plain` (the sentence without numbers, when a number is missing); `warning.wallet.<code>` on a wallet check.
+   */
+  readonly messageCode?: string;
+  readonly text?: string;
   /** Every warning can be appealed; an appeal opens a case. */
   readonly appealUrl: string;
 }

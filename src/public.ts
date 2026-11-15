@@ -33,6 +33,9 @@ export interface PublicWarning {
   readonly proofs: readonly Proof[];
   /** `warning.<code>` in the message catalog, for a client that shows its own words. */
   readonly messageCode: string;
+  /** 1.41.0: the numbers the text names, by the placeholder names of the catalog text. Empty when it has none. */
+  readonly params?: Readonly<Record<string, number>>;
+  /** The English text, built from the catalog text and `params`. */
   readonly text: string;
 }
 
@@ -151,6 +154,7 @@ export interface PublicTransactionResponse {
 export interface PublicMetaResponse {
   readonly meta: PublicMeta;
   /** Every warning code a token answer can carry, with English text. `warningLevel` (named `severity` until 1.40.0) is the level a warning with this code carries. A row here is a code of the list and shows no proof, unlike a warning in an answer; this is the list of codes, with no proof to show. */
+  /** 1.41.0: `text` is the sentence as the catalog holds it; where a sentence names numbers they stand as placeholders (`{pct}`, `{hours}`, `{launches}`), filled in the `text` of a warning in an answer from its `params`. */
   readonly warningCodes: readonly { readonly code: string; readonly warningLevel: 1 | 2 | 3; readonly about: 'token' | 'creator' | 'wallet' | 'transaction'; readonly messageCode: string; readonly text: string }[];
   readonly factKinds: readonly string[];
   /** The calling key: its plan, its limits, and what it used today (UTC). */
