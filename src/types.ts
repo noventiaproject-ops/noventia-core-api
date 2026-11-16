@@ -502,6 +502,57 @@ export interface CardNumber {
   readonly proofs: readonly Proof[];
 }
 
+/**
+ * 1.48.0 (owner, 16 November 2026): how far the history behind a count was read. Sent to a client that asks with
+ * `contract=1.48` (query) or `X-Noventia-Contract: 1.48`, and always by the public API and MCP.
+ */
+export type ReadState = 'none' | 'partial' | 'full';
+
+/**
+ * 1.48.0: a count that depends on a wallet's history. Null means not read, never zero.
+ * - `full`: the whole history was read; `value` is exact (0 is a real zero) and equals `atLeast`, with its proofs.
+ * - `partial`: a part was read; `value` is null and `atLeast` is a lower bound from that part, with its proofs
+ *   (`atLeast: 0` means none in the part read).
+ * - `none`: nothing was read; `value` and `atLeast` are null and there are no proofs.
+ */
+export interface ReadCount {
+  readonly state: ReadState;
+  readonly value: number | null;
+  readonly atLeast: number | null;
+  readonly proofs: readonly Proof[];
+}
+
+/** 1.48.0: the developer card with each count's read state. */
+export interface CreatorCardRead {
+  readonly onSolanaSince: string | null;
+  readonly walletAgeDays: number | null;
+  /** How far the wallet's history behind the counts was read. */
+  readonly readState: ReadState;
+  readonly tokensLaunched: ReadCount;
+  readonly liquidityPulls: ReadCount;
+  readonly firstDayDumps: ReadCount;
+  readonly movedOutFirstDay: ReadCount;
+}
+
+/**
+ * 1.48.0: the top of a token answer. `complete`: every part the warnings need was read. `unread`: the parts that were
+ * not (the same list as `assessment.missing`). `highestWarning`: with `complete` true, the highest level found (0 when
+ * none); with `complete` false, the highest real warning found when it is level 2 or 3 (a lower bound: it stands, and
+ * the answer stays incomplete), else null, with the reason in `assessment.message`. Treat `complete: false` as not
+ * checked yet. Null means not read, not zero.
+ */
+export interface CompletenessV148 {
+  readonly complete: boolean;
+  readonly unread: readonly TokenMissingPart[];
+  readonly highestWarning: 0 | 1 | 2 | 3 | null;
+}
+
+/** 1.48.0: GET /v1/check/token/{mint} for a client that asks with contract 1.48 or later. */
+export type TokenCheckResponseV148 = Omit<TokenCheckResponse, 'creatorCard'> & CompletenessV148 & { readonly creatorCard: CreatorCardRead | null; readonly contract: '1.48' };
+
+/** 1.48.0: GET /v1/check/wallet/{address} for a client that asks with contract 1.48 or later. */
+export type WalletCheckResponseV148 = Omit<WalletCheckResponse, 'card'> & { readonly card: CreatorCardRead; readonly complete: boolean; readonly unread: readonly 'history'[]; readonly contract: '1.48' };
+
 /** The developer card of a token's creator: facts, no level. */
 export interface CreatorCard {
   /** ISO 8601 date of the wallet's first transaction. */

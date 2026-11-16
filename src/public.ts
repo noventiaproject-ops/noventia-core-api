@@ -5,7 +5,7 @@
  * read. Never "safe" or "unsafe", no score, no word about intent.
  */
 
-import type { AutomationFlag, CreatorCard, CreatorHistoryView, FactView, IssuerPowerView, OfficialAssetView, Proof, ResponseMeta, TokenAssessment } from './types.js';
+import type { AutomationFlag, CreatorCardRead, CreatorHistoryView, FactView, IssuerPowerView, OfficialAssetView, Proof, ResponseMeta, TokenAssessment } from './types.js';
 
 /** `held`: answered from what the core holds, no credit spent; `read`: read from the chain now; `stale`: held and older than usual, because today's credits for new reads are spent. */
 export type PublicCache = 'held' | 'read' | 'stale';
@@ -64,7 +64,8 @@ export interface PublicTokenResponse {
   readonly issuerPowers: readonly IssuerPowerView[];
   readonly official: OfficialAssetView | null;
   /** The wallet that signed the launch and its record, when read. */
-  readonly creator: { readonly address: string | null; readonly card: CreatorCard | null };
+  /** 1.48.0: each count of the card has its read state (ReadCount): null means not read, not zero. */
+  readonly creator: { readonly address: string | null; readonly card: CreatorCardRead | null };
   readonly notRead: readonly PublicNotRead[];
   /**
    * The highest level among `warnings`, 0 when there are none: a maximum over stated facts, for filtering. It is no score.
@@ -74,6 +75,14 @@ export interface PublicTokenResponse {
   readonly highestWarning: 0 | 1 | 2 | 3 | null;
   /** 1.47.0: whether the warnings are final, what is missing, and what to show meanwhile (TokenAssessment). */
   readonly assessment: TokenAssessment;
+  /**
+   * 1.48.0: every part the warnings need was read. Treat `complete: false` as not checked yet. Null means not read,
+   * not zero. With `complete` false, `highestWarning` is the highest real warning found when it is level 2 or 3
+   * (it stands; the answer stays incomplete), else null.
+   */
+  readonly complete: boolean;
+  /** 1.48.0: the parts not read (`creator_history`, `creator`, `holders`, `first_transaction`, `depth`). */
+  readonly unread: readonly TokenAssessment['missing'][number][];
   /** 1.47.0: the creator's history behind the creator warnings. */
   readonly creatorHistory: CreatorHistoryView;
 }
@@ -97,12 +106,17 @@ export interface PublicWalletResponse {
   /** Days since the first transaction; null when it was not read. */
   readonly ageDays: number | null;
   /** Tokens the wallet launched and what happened on their first days, each number with its transactions. Null when nothing was read. */
-  readonly created: CreatorCard | null;
+  readonly created: CreatorCardRead | null;
   /** Set when the wallet's swaps look automated, with the measurements behind it; a fact, with no word about intent. */
   readonly automation: AutomationFlag | null;
   readonly warnings: readonly PublicWarning[];
   readonly notRead: readonly PublicNotRead[];
-  readonly highestWarning: 0 | 1 | 2 | 3;
+  /** 1.48.0: with `complete` false, the highest real warning found when it is level 2 or 3, else null. */
+  readonly highestWarning: 0 | 1 | 2 | 3 | null;
+  /** 1.48.0: the wallet's whole history was read. Treat `complete: false` as not checked yet. Null means not read, not zero. */
+  readonly complete: boolean;
+  /** 1.48.0: `history` when the wallet's history was not read whole. */
+  readonly unread: readonly 'history'[];
 }
 
 /** POST /v1/public/transaction (1.36.0, beta): a transaction to check before it is signed. It is simulated, never sent, never stored, never logged. */
