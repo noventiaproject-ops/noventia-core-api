@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.44.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.45.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.45.0:** `ListView.links` (optional): `{ state: 'under_review', messageCode, message }` while links between wallets are under review; then no farm label and no cluster is given, and no passport is frozen by a farm case. Additions only.
 * **1.44.0:** `coverage.queuePosition` (optional): the wallet's place among those waiting to be read, while `coverage.backfill` is `queued`. A wallet call answers within about 8 seconds; a read that takes longer goes on and the answer says `coverage.backfill: running`. A wallet that waits for the next day answers `limitedBy: daily_cap` with `coverage.reading` and no place. Additions only.
 * **1.43.1:** the invite type of the public check API is `PartnerInviteView`. As `InviteView` it met the project invite's type of the same name, and 1.42.0 and 1.43.0 did not compile from the index: use 1.43.1. The message code `error.busy_today.swaps_are_busy_right_now` for a spent relay share.
 * **1.43.0:** `GET /v1/public/status` with no key (`PublicStatusResponse`): the core, the Telegram bot, the Discord bot and the app, each `up`, `down` or `unknown` with the time it was last seen. A browser may call it from https://noventia.xyz only; the answer is reused for 60 seconds. The error code `bots_busy_today` (503) for a bot's key whose share of new wallets is used for the day. Additions only.

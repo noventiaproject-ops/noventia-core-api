@@ -250,6 +250,7 @@ export const CORE_MESSAGES = {
   'label.moved_out_past_airdrops': 'Moved out past airdrops',
   'label.not_read': 'Not read',
   'label.sold_past_airdrops': 'Sold past airdrops',
+  'list.links_under_review': 'Links between wallets are under review. None are shown until the review is done.',
   'pioneer.rule.1': '{places} places. The status is earned, never bought or transferred.',
   'pioneer.rule.2': 'A person holds it; an agent does not.',
   'pioneer.rule.3': 'The passport stands at level 1 in at least two branches, or at level 2 in one.',

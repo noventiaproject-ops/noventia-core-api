@@ -311,6 +311,13 @@ export interface ListView {
   /** Wallets the exclusions file holds now (farm_cluster and looks_automated, minus lifted labels). */
   readonly excluded: number | null;
   readonly clusters: number | null;
+  /**
+   * 1.45.0: links between wallets are under review (owner, 16 November 2026). While present, no farm_cluster label
+   * and no cluster is given, `summary.farm_cluster` and `clusters` are 0, and `excluded` counts the other label that
+   * leaves a wallet out. The words to show, with their code: "Links between wallets are under review. None are shown
+   * until the review is done."
+   */
+  readonly links?: { readonly state: 'under_review'; readonly messageCode: string; readonly message: string };
   /** The facts are read up to this moment; `fresh` is counted back from it. */
   readonly snapshotAt: string;
   readonly rulesVersion: string;
