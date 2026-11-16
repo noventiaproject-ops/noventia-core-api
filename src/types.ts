@@ -590,6 +590,52 @@ export interface CreatorReadStatus extends CheckStatus {
 }
 
 /**
+ * 1.47.0 (owner, 16 November 2026): the creator's history behind the creator warnings, in one place. A creator
+ * warning is made only from what was read, so while the history is not read the token's level is not known.
+ */
+export interface CreatorHistoryView {
+  /**
+   * `read`: the whole history. `partial`: a part of it. `not_read`: nothing yet. `none`: no creator could be proven.
+   * `not_needed`: a listed asset's own mint, whose issuer is known from the list.
+   */
+  readonly state: 'read' | 'partial' | 'not_read' | 'none' | 'not_needed';
+  /**
+   * Why it is not read whole: `reading` (being read now: ask again in `assessment.retryAfterSeconds`), `queued`
+   * (waits its turn), `daily_cap` (the day's credits are used: read after 00:00 UTC), `large_wallet` (longer than
+   * the creator cap: only a part is read), or null.
+   */
+  readonly reason: 'reading' | 'queued' | 'daily_cap' | 'large_wallet' | null;
+  readonly transactionsRead: number;
+  /** The creator's place among the wallets waiting to be read, 1 for the next; only while it waits. */
+  readonly queuePosition?: number;
+  readonly messageCode: string;
+  readonly message: string;
+}
+
+/** 1.47.0: a part of a token check that was not read, so a warning it would raise may be missing. */
+export type TokenMissingPart = 'creator_history' | 'creator' | 'holders' | 'first_transaction' | 'depth';
+
+/**
+ * 1.47.0 (owner, 16 November 2026): whether the warnings are a final answer. `final`: every part the warnings need
+ * was read, or a level 3 warning was found, which nothing more can raise; `highestWarning` is the level. `unknown`:
+ * a part is missing (see `missing`); `highestWarning` is null and `atLeast` is the highest level found so far.
+ *
+ * How a client shows it: on `unknown`, show the words of `message` (for example "Creator's history is not read yet")
+ * in the place of a level, never a level, a colour of low risk or "no warnings"; list the warnings found so far
+ * as found so far; ask again after `retryAfterSeconds` when it is a number. On `final`, show the level as before.
+ */
+export interface TokenAssessment {
+  readonly state: 'final' | 'unknown';
+  readonly highestWarning: 0 | 1 | 2 | 3 | null;
+  readonly atLeast: 0 | 1 | 2 | 3;
+  readonly missing: readonly TokenMissingPart[];
+  /** Seconds after which asking again may give the final answer; null when final, or when nothing changes before the next UTC day. */
+  readonly retryAfterSeconds: number | null;
+  readonly messageCode: string;
+  readonly message: string;
+}
+
+/**
  * GET /v1/check/token/{mint}: "can I trust this token before I buy it", answered with facts and
  * warnings, never with "safe" or "unsafe". The creator gets facts and
  * warnings, no branch level: a level needs the owner's consent.
@@ -631,7 +677,12 @@ export interface TokenCheckResponse {
   readonly creatorShare?: CreatorShareView | null;
   /** This launch: creation, liquidity removed, first day sales and moves. */
   readonly launch: readonly FactView[];
+  /** The warnings found. While `assessment.state` is `unknown` they are the warnings found so far, never a final level. */
   readonly warnings: readonly Warning[];
+  /** 1.47.0: the creator's history behind the creator warnings. Always sent by a core of 1.47.0 or later. */
+  readonly creatorHistory?: CreatorHistoryView;
+  /** 1.47.0: whether the warnings are final, and what to show when they are not. Always sent by a core of 1.47.0 or later. */
+  readonly assessment?: TokenAssessment;
 }
 
 /**

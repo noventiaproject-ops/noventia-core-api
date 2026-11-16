@@ -5,7 +5,7 @@
  * read. Never "safe" or "unsafe", no score, no word about intent.
  */
 
-import type { AutomationFlag, CreatorCard, FactView, IssuerPowerView, OfficialAssetView, Proof, ResponseMeta } from './types.js';
+import type { AutomationFlag, CreatorCard, CreatorHistoryView, FactView, IssuerPowerView, OfficialAssetView, Proof, ResponseMeta, TokenAssessment } from './types.js';
 
 /** `held`: answered from what the core holds, no credit spent; `read`: read from the chain now; `stale`: held and older than usual, because today's credits for new reads are spent. */
 export type PublicCache = 'held' | 'read' | 'stale';
@@ -66,8 +66,16 @@ export interface PublicTokenResponse {
   /** The wallet that signed the launch and its record, when read. */
   readonly creator: { readonly address: string | null; readonly card: CreatorCard | null };
   readonly notRead: readonly PublicNotRead[];
-  /** The highest level among `warnings`, 0 when there are none: a maximum over stated facts, for filtering. It is no score. */
-  readonly highestWarning: 0 | 1 | 2 | 3;
+  /**
+   * The highest level among `warnings`, 0 when there are none: a maximum over stated facts, for filtering. It is no score.
+   * 1.47.0: null while `assessment.state` is `unknown`: a part was not read (the creator's history above all), so no
+   * level is given; `assessment.atLeast` is the highest found so far.
+   */
+  readonly highestWarning: 0 | 1 | 2 | 3 | null;
+  /** 1.47.0: whether the warnings are final, what is missing, and what to show meanwhile (TokenAssessment). */
+  readonly assessment: TokenAssessment;
+  /** 1.47.0: the creator's history behind the creator warnings. */
+  readonly creatorHistory: CreatorHistoryView;
 }
 
 /**
@@ -142,12 +150,17 @@ export interface PublicTransactionResponse {
   readonly programs: readonly { readonly address: string; readonly listed: boolean; readonly name: string | null; readonly inner: boolean; readonly namedBy?: 'jupiter_routing' | null }[];
   /** Powers the transaction hands to someone else over the signer's accounts. */
   readonly grants: readonly { readonly kind: 'delegate' | 'owner_changed' | 'close_authority_changed' | 'account_assigned'; readonly account: string; readonly to: string | null; readonly amountRaw: string | null }[];
-  /** For each mint the signer would hold more of (at most 3): the token check at depth "mint". */
-  readonly tokens: readonly { readonly mint: string; readonly highestWarning: 0 | 1 | 2 | 3; readonly warnings: readonly PublicWarning[]; readonly notRead: readonly PublicNotRead[] }[];
+  /**
+   * For each mint the signer would hold more of (at most 3): the token check at depth "mint". 1.47.0: `highestWarning`
+   * null and `assessment.state` `unknown` while that token's level is not known (its creator not read, or only its
+   * mint read); the found warnings are then the warnings found so far.
+   */
+  readonly tokens: readonly { readonly mint: string; readonly highestWarning: 0 | 1 | 2 | 3 | null; readonly warnings: readonly PublicWarning[]; readonly notRead: readonly PublicNotRead[]; readonly assessment?: TokenAssessment }[];
   /** Codes `tx.*`. The proof of each is the account it is about, at the slot the simulation ran on. */
   readonly warnings: readonly PublicWarning[];
   readonly notRead: readonly PublicNotRead[];
-  readonly highestWarning: 0 | 1 | 2 | 3;
+  /** 1.47.0: null while a received token's level is not known and no level 3 warning was found (`notRead` names `received_token_level`). */
+  readonly highestWarning: 0 | 1 | 2 | 3 | null;
 }
 
 /** GET /v1/public/meta: what a client reads once at start. Spends no credit. */

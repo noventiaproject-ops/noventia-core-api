@@ -9,7 +9,7 @@ The API answers with facts, each carrying its proof: a Solana transaction, or an
 Pin a tag:
 
 ```json
-"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.46.0"
+"@noventia/core-api": "github:noventiaproject-ops/noventia-core-api#v1.47.0"
 ```
 
 The package ships TypeScript source. Expo and Metro compile it as they are. In Next.js, add it to `transpilePackages`.
@@ -57,6 +57,7 @@ Errors arrive as `CoreApiError`, which carries `status`, `code` and `retryAfter`
 
 Version 1 only grows: new optional fields, never a renamed or removed one. A breaking change would be a new major version and a new path, `/v2`.
 
+* **1.47.0:** a token check never gives a level from what it did not read. `TokenCheckResponse.assessment` (`TokenAssessment`): `state` `final` (every part read, or a level 3 found) with `highestWarning` the level, or `unknown` with `highestWarning: null`, `atLeast` (the highest found so far), `missing` (`creator_history`, `creator`, `holders`, `first_transaction`, `depth`), `retryAfterSeconds` and the words (`messageCode`, `message`, for example "Creator's history is not read yet. Check again in a minute."). `TokenCheckResponse.creatorHistory` (`CreatorHistoryView`): `read`, `partial`, `not_read`, `none` or `not_needed`, with `reason` (`reading`, `queued`, `daily_cap`, `large_wallet`) and `queuePosition`. On `unknown` a client shows the message in the place of a level, never a level, a low-risk colour or "no warnings", lists the warnings as found so far, and asks again after `retryAfterSeconds`. Public API: `highestWarning` is null while unknown, and the answer carries `assessment` and `creatorHistory`; a received token in a transaction check carries its own, and the transaction's `highestWarning` is null while one is unknown.
 * **1.46.0:** the owner's daily launch report. Four metric series: `wallets_new` (`app`, `bots`), `limited` (`code|route` of answers refused by a ceiling or a pace limit), `helius_account` (`day`, `others`, `ceiling`, `cycle_used`, `cycle_left`: Helius' own count of the account) and `queue` (`now`, `max`); `share_credits` adds `live` and `bots`. `OwnerTurnoverResponse.days`: the turnover per UTC day of the 7 kept (`TurnoverDayView`). Additions only.
 * **1.45.0:** `ListView.links` (optional): `{ state: 'under_review', messageCode, message }` while links between wallets are under review; then no farm label and no cluster is given, and no passport is frozen by a farm case. Additions only.
 * **1.44.0:** `coverage.queuePosition` (optional): the wallet's place among those waiting to be read, while `coverage.backfill` is `queued`. A wallet call answers within about 8 seconds; a read that takes longer goes on and the answer says `coverage.backfill: running`. A wallet that waits for the next day answers `limitedBy: daily_cap` with `coverage.reading` and no place. Additions only.
