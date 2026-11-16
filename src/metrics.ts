@@ -71,6 +71,17 @@ export type MetricCounter = (typeof METRIC_COUNTERS)[number];
  *   upper bound in ms: le25 … le6400, inf), from which `latency` below is computed.
  * - `fees` per token: what the fee wallet received that day, in raw units (SOL and WSOL 9 decimals,
  *   USDC and USDT 6).
+ *
+ * Since 1.46.0, for the daily launch report (owner, 16 November 2026):
+ * - `wallets_new` per share: `app` (the app, the site and every other key outside the bots) and `bots` (both
+ *   bots together): new wallets whose first read began that day, one place of the day's cap each.
+ * - `limited` per `code|route`: answers refused by a ceiling or a pace limit, by error code (`busy_today`,
+ *   `bots_busy_today`, `rate_limited`) and route (`rpc:<method>` for the relay).
+ * - `helius_account`, Helius' own count of the whole account, written every minute while it is read (the last
+ *   value of a day stands for the day): `day` credits spent that UTC day, `others` the part of them spent outside
+ *   this service, `ceiling` the day's ceiling, `cycle_used` and `cycle_left` the plan's cycle.
+ * - `queue`: `now` wallets waiting in the read queue at the last minute of the day that was counted, `max` the
+ *   most seen in one minute that day.
  */
 export const METRIC_SERIES = [
   'token_checks',
@@ -97,6 +108,10 @@ export const METRIC_SERIES = [
   'errors_5xx',
   'latency_ms',
   'fees',
+  'wallets_new',
+  'limited',
+  'helius_account',
+  'queue',
 ] as const;
 export type MetricSeries = (typeof METRIC_SERIES)[number];
 
@@ -221,6 +236,13 @@ export interface TurnoverWindowView {
   readonly fees: { readonly SOL: string; readonly USDC: string; readonly USDT: string };
 }
 
+/** One UTC day of the turnover (1.46.0). `wallets` are exact counts of that day, null while wallets are not counted. */
+export interface TurnoverDayView extends TurnoverWindowView {
+  /** `YYYY-MM-DD`, UTC. */
+  readonly day: string;
+  readonly complete: boolean;
+}
+
 /**
  * GET /v1/owner/turnover (owner key, 1.33.0): swaps and SOL reclaims made through Noventia, counted from the
  * receipts of the Fees wallet with every amount read from the transaction. Numbers only. `status` partial: the
@@ -234,6 +256,11 @@ export interface OwnerTurnoverResponse {
   readonly last24h: TurnoverWindowView;
   readonly last7d: TurnoverWindowView;
   readonly allTime: TurnoverWindowView;
+  /**
+   * 1.46.0: the same sums per UTC day, oldest first, for each day inside the 7 days kept (today included). `complete`
+   * false for the day `asOf` falls in, and for a first day the 7 days reach only partly.
+   */
+  readonly days: readonly TurnoverDayView[];
   /** Why `wallets` is null in every window, with the message code; null when wallets are counted. */
   readonly walletsReason: { readonly code: string; readonly text: string } | null;
 }
